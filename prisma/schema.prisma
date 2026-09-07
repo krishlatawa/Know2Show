@@ -35,6 +35,7 @@ model Profile {
   githubUrl       String?
   linkedinUrl     String?
   targetRole      TargetRole?
+  resumeAnalysis  ResumeAnalysis?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 }
@@ -51,3 +52,24 @@ model TargetRole {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
+
+model ResumeAnalysis {
+  id             String   @id @default(cuid())
+  profileId      String   @unique
+  profile        Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  fileName       String?
+  fileSize       Int?
+  rawText        String?  @db.Text
+  candidateName  String?
+  headline       String?
+  totalYearsExp  Int      @default(0)
+  seniorityLevel String?  // ENTRY, MID, SENIOR, LEAD, EXECUTIVE
+  skills         Json     // Categorized skills: [{ category: string, items: string[] }]
+  technologies   String[] // Flat list of technologies
+  experience     Json     // [{ company, role, startDate, endDate, isCurrent, location, description, technologiesUsed, achievements }]
+  projects       Json     // [{ title, description, role, technologiesUsed, highlights, githubUrl, liveUrl }]
+  education      Json     // [{ institution, degree, fieldOfStudy, graduationYear }]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+

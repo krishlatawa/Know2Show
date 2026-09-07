@@ -7,6 +7,10 @@ export const authOptions = {
     strategy: "jwt",
   },
 
+  pages: {
+    signIn: "/auth/signin", // Redirects unauthenticated users here
+  },
+
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -55,7 +59,6 @@ export const authOptions = {
       if (user) {
         token.id = user.id;
       }
-
       return token;
     },
 
@@ -63,7 +66,6 @@ export const authOptions = {
       if (session.user) {
         session.user.id = token.id;
       }
-
       return session;
     },
   },

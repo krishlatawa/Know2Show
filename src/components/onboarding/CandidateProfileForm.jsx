@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { SENIORITY_LEVELS } from "@/lib/validations/onboarding";
 import SkillTagInput from "./SkillTagInput";
-import { User, Briefcase, Award, Globe, Link as LinkIcon, AlignLeft } from "lucide-react";
+import ResumeUploadDropzone from "@/components/resume/ResumeUploadDropzone";
+import ResumeAnalysisViewer from "@/components/resume/ResumeAnalysisViewer";
+import { User, Briefcase, Award, Globe, Link as LinkIcon, AlignLeft, Sparkles, CheckCircle2 } from "lucide-react";
 
 const SUGGESTED_SKILLS = [
   "JavaScript", "TypeScript", "React", "Next.js", "Node.js", 
@@ -11,14 +13,43 @@ const SUGGESTED_SKILLS = [
 ];
 
 export default function CandidateProfileForm({ data, onChange, errors = {}, onNext }) {
+  const [extractedResume, setExtractedResume] = useState(null);
+  const [resumeSourceName, setResumeSourceName] = useState("");
+  const [isApplied, setIsApplied] = useState(false);
+
   const updateField = (field, value) => {
     onChange({ ...data, [field]: value });
+  };
+
+  const handleResumeAnalysisComplete = (parsedData, sourceName) => {
+    setExtractedResume(parsedData);
+    setResumeSourceName(sourceName);
+    // Auto-apply fields to the onboarding form
+    applyResumeToForm(parsedData);
+  };
+
+  const applyResumeToForm = (parsedData) => {
+    const skillsFromCategories = parsedData.skills?.flatMap((cat) => cat.items) || [];
+    const allSkills = Array.from(
+      new Set([...skillsFromCategories, ...(parsedData.technologies || [])])
+    ).slice(0, 15); // Top 15 detected skills
+
+    onChange({
+      ...data,
+      headline: parsedData.headline || data.headline || "",
+      bio: parsedData.bio || data.bio || "",
+      experienceYears: parsedData.totalYearsExp ?? data.experienceYears ?? 2,
+      seniorityLevel: parsedData.seniorityLevel || data.seniorityLevel || "MID",
+      skills: allSkills.length > 0 ? allSkills : data.skills,
+    });
+    setIsApplied(true);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onNext();
   };
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -29,9 +60,26 @@ export default function CandidateProfileForm({ data, onChange, errors = {}, onNe
             Candidate Background
           </h2>
           <p className="text-sm text-slate-400 mt-1">
-            Tell us about your professional background so the AI interviewer can calibrate questions appropriately.
+            Tell us about your professional background or upload your resume to auto-fill your profile with AI.
           </p>
         </div>
+
+        {/* AI Resume Upload & Parsing Section */}
+        <div className="space-y-4">
+          <ResumeUploadDropzone
+            onAnalysisComplete={handleResumeAnalysisComplete}
+          />
+
+          {extractedResume && (
+            <ResumeAnalysisViewer
+              data={extractedResume}
+              sourceName={resumeSourceName}
+              onApplyToProfile={() => applyResumeToForm(extractedResume)}
+              isApplied={isApplied}
+            />
+          )}
+        </div>
+
 
         {/* Headline */}
         <div>

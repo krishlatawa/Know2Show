@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Target, Zap, Video, CheckCircle2, ArrowRight, Settings, Loader2 } from "lucide-react";
+import { User, Target, Zap, Video, CheckCircle2, ArrowRight, Settings, Loader2, FileText } from "lucide-react";
+import ResumeAnalysisViewer from "@/components/resume/ResumeAnalysisViewer";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -196,7 +197,22 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* AI Parsed Resume Details Section */}
+        {profile?.resumeAnalysis && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-indigo-400" />
+              <h2 className="text-xl font-bold text-white">Parsed Resume & Skill Graph</h2>
+            </div>
+            <ResumeAnalysisViewer
+              data={profile.resumeAnalysis}
+              sourceName={profile.resumeAnalysis.fileName || "Uploaded Resume"}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 }
+

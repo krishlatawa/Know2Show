@@ -20,7 +20,10 @@ export async function GET(req) {
 
     const profile = await prisma.profile.findUnique({
       where: { userId: session.user.id },
-      include: { targetRole: true },
+      include: { 
+        targetRole: true,
+        resumeAnalysis: true,
+      },
     });
 
     if (!profile) {
