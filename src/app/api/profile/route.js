@@ -21,7 +21,12 @@ export async function GET(req) {
     const profile = await prisma.profile.findUnique({
       where: { userId: session.user.id },
       include: { 
-        targetRole: true,
+        targetRole: {
+          include: {
+            jdAnalysis: true,
+            interviewPlan: true,
+          },
+        },
         resumeAnalysis: true,
       },
     });

@@ -41,17 +41,52 @@ model Profile {
 }
 
 model TargetRole {
-  id             String   @id @default(cuid())
-  profileId      String   @unique
-  profile        Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  id             String      @id @default(cuid())
+  profileId      String      @unique
+  profile        Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
   roleTitle      String
-  companyType    String   // FAANG, STARTUP, ENTERPRISE, FINTECH, etc.
-  jobDescription String?  @db.Text
+  companyType    String      // FAANG, STARTUP, ENTERPRISE, FINTECH, etc.
+  jobDescription String?     @db.Text
   focusTopics    String[]
-  difficulty     String   // EASY, MEDIUM, HARD, FAANG_LEVEL
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  difficulty     String      // EASY, MEDIUM, HARD, FAANG_LEVEL
+  jdAnalysis     JdAnalysis?
+  interviewPlan InterviewPlan?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 }
+
+model InterviewPlan {
+  id           String     @id @default(cuid())
+  targetRoleId String     @unique
+  targetRole   TargetRole @relation(fields: [targetRoleId], references: [id], onDelete: Cascade)
+  title        String
+  difficulty   String     // EASY, MEDIUM, HARD, FAANG_LEVEL
+  summary      String?    @db.Text
+  questions    Json       // [{ id, order, category, questionText, focusTopic, difficulty, expectedConcepts, evaluationRubric, hint }]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model JdAnalysis {
+  id                   String     @id @default(cuid())
+  targetRoleId         String     @unique
+  targetRole           TargetRole @relation(fields: [targetRoleId], references: [id], onDelete: Cascade)
+  fileName             String?
+  fileSize             Int?
+  rawText              String?    @db.Text
+  roleTitle            String?
+  seniorityLevel       String?    // ENTRY, MID, SENIOR, LEAD, EXECUTIVE
+  companyType          String?
+  requiredSkills       Json       // Categorized required skills: [{ category: string, items: string[] }]
+  requiredTechnologies String[]   // Flat list of mandatory & preferred technologies
+  responsibilities     String[]   // Key responsibilities
+  roleExpectations     Json       // { domainKnowledge: [], softSkills: [], minimumExperienceYears: number }
+  keyFocusAreas        String[]   // Recommended interview topics
+  skillGap             Json?      // Skill gap analysis: { matchPercentage, matchingSkills, missingCriticalSkills, overqualifiedSkills, recommendedFocusAreas }
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+}
+
 
 model ResumeAnalysis {
   id             String   @id @default(cuid())

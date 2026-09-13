@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { COMPANY_TYPES, DIFFICULTY_LEVELS } from "@/lib/validations/onboarding";
 import SkillTagInput from "./SkillTagInput";
-import { Target, Building2, FileText, Zap, ArrowLeft } from "lucide-react";
+import JdUploadDropzone from "@/components/jd/JdUploadDropzone";
+import JdAnalysisViewer from "@/components/jd/JdAnalysisViewer";
+import { Target, Building2, FileText, Zap, ArrowLeft, Sparkles } from "lucide-react";
 
 const SUGGESTED_TOPICS = [
   "System Design", "Data Structures & Algorithms", "React & Frontend Architecture",
@@ -12,8 +14,35 @@ const SUGGESTED_TOPICS = [
 ];
 
 export default function TargetRoleForm({ data, onChange, errors = {}, onBack, onNext }) {
+  const [extractedJd, setExtractedJd] = useState(null);
+  const [skillGapData, setSkillGapData] = useState(null);
+  const [jdSourceName, setJdSourceName] = useState("");
+  const [isApplied, setIsApplied] = useState(false);
+
   const updateField = (field, value) => {
     onChange({ ...data, [field]: value });
+  };
+
+  const handleJdAnalysisComplete = (parsedJd, skillGap, sourceName) => {
+    setExtractedJd(parsedJd);
+    setSkillGapData(skillGap);
+    setJdSourceName(sourceName);
+    applyJdToForm(parsedJd, skillGap);
+  };
+
+  const applyJdToForm = (parsedJd, skillGap) => {
+    const recommendedTopics = skillGap?.recommendedFocusAreas || parsedJd.keyFocusAreas || [];
+    const mergedTopics = Array.from(
+      new Set([...(data.focusTopics || []), ...recommendedTopics])
+    ).slice(0, 10);
+
+    onChange({
+      ...data,
+      roleTitle: parsedJd.roleTitle || data.roleTitle || "",
+      focusTopics: mergedTopics.length > 0 ? mergedTopics : data.focusTopics,
+      jobDescription: parsedJd.responsibilities?.join("\n") || data.jobDescription || "",
+    });
+    setIsApplied(true);
   };
 
   const handleSubmit = (e) => {
@@ -30,8 +59,25 @@ export default function TargetRoleForm({ data, onChange, errors = {}, onBack, on
             Target Role & Goal Configuration
           </h2>
           <p className="text-sm text-slate-400 mt-1">
-            Specify your dream target role and focus areas so our AI interviewer generates hyper-realistic interview scenarios.
+            Specify your target job role or upload a Job Description (PDF, Screenshot, or Text) for AI Skill Gap analysis.
           </p>
+        </div>
+
+        {/* AI Multimodal Job Description Dropzone */}
+        <div className="space-y-4">
+          <JdUploadDropzone
+            onAnalysisComplete={handleJdAnalysisComplete}
+          />
+
+          {extractedJd && (
+            <JdAnalysisViewer
+              data={extractedJd}
+              skillGap={skillGapData}
+              sourceName={jdSourceName}
+              onApplyFocusTopics={() => applyJdToForm(extractedJd, skillGapData)}
+              isApplied={isApplied}
+            />
+          )}
         </div>
 
         {/* Role Title */}
@@ -121,22 +167,19 @@ export default function TargetRoleForm({ data, onChange, errors = {}, onBack, on
           error={errors.focusTopics}
         />
 
-        {/* Job Description Optional Text area */}
+        {/* Job Description Text area */}
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
             <FileText className="w-4 h-4 text-slate-400" />
-            Target Job Description (Optional)
+            Target Job Description Details
           </label>
           <textarea
             rows="4"
             value={data.jobDescription || ""}
             onChange={(e) => updateField("jobDescription", e.target.value)}
-            placeholder="Paste the job description or requirement highlights from LinkedIn, Indeed, etc..."
+            placeholder="Paste the job description or requirement highlights..."
             className="w-full px-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all resize-none"
           />
-          <p className="mt-1 text-xs text-slate-400">
-            Paste target job specifications here to allow AI to generate hyper-custom questions tailored specifically to that role.
-          </p>
         </div>
       </div>
 

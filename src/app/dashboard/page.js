@@ -4,8 +4,22 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Target, Zap, Video, CheckCircle2, ArrowRight, Settings, Loader2, FileText } from "lucide-react";
+import {
+  User,
+  Target,
+  Zap,
+  Video,
+  Settings,
+  Loader2,
+  FileText,
+  Sparkles,
+  BrainCircuit,
+  AlertCircle,
+  PlusCircle,
+} from "lucide-react";
 import ResumeAnalysisViewer from "@/components/resume/ResumeAnalysisViewer";
+import JdAnalysisViewer from "@/components/jd/JdAnalysisViewer";
+import InterviewPlanViewer from "@/components/interview/InterviewPlanViewer";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -14,6 +28,9 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const [planError, setPlanError] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -40,6 +57,34 @@ export default function DashboardPage() {
     }
   }, [status, router]);
 
+  const handleGeneratePlan = async () => {
+    try {
+      setIsGeneratingPlan(true);
+      setPlanError("");
+      const res = await fetch("/api/interview-plan/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.plan) {
+        setProfile((prev) => ({
+          ...prev,
+          targetRole: {
+            ...prev?.targetRole,
+            interviewPlan: data.plan,
+          },
+        }));
+      } else {
+        setPlanError(data.error || "Failed to generate interview plan. Please try again.");
+      }
+    } catch (err) {
+      console.error("Plan generation error:", err);
+      setPlanError("Network error while generating interview plan.");
+    } finally {
+      setIsGeneratingPlan(false);
+    }
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-300">
@@ -50,6 +95,7 @@ export default function DashboardPage() {
   }
 
   const targetRole = profile?.targetRole;
+  const interviewPlan = targetRole?.interviewPlan;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10">
@@ -76,6 +122,13 @@ export default function DashboardPage() {
             Update Target Role
           </Link>
         </div>
+
+        {error && (
+          <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs rounded-xl flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            {error}
+          </div>
+        )}
 
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -143,7 +196,7 @@ export default function DashboardPage() {
               </div>
               <button
                 disabled
-                className="px-5 py-2.5 bg-indigo-600/50 text-indigo-200 text-sm font-semibold rounded-xl cursor-not-allowed flex items-center gap-1.5 opacity-80"
+                className="px-5 py-2.5 bg-indigo-600/50 text-indigo-200 text-sm font-semibold rounded-xl cursor-not-allowed flex items-center gap-1.5 opacity-80 shrink-0"
               >
                 Start Replay Interview (Coming Soon)
               </button>
@@ -198,6 +251,63 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* RAG Knowledge & Personalized Interview Plan Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BrainCircuit className="w-5 h-5 text-indigo-400" />
+              <h2 className="text-xl font-bold text-white">RAG Personalized Interview Plan</h2>
+            </div>
+          </div>
+
+          {planError && (
+            <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs rounded-xl flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {planError}
+            </div>
+          )}
+
+          {interviewPlan ? (
+            <InterviewPlanViewer
+              plan={interviewPlan}
+              onRegenerate={handleGeneratePlan}
+              isGenerating={isGeneratingPlan}
+            />
+          ) : (
+            <div className="p-8 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-indigo-500/30 rounded-2xl text-center space-y-4 backdrop-blur-xl shadow-xl">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div className="space-y-1 max-w-md mx-auto">
+                <h3 className="text-lg font-extrabold text-white">
+                  Generate Your RAG Personalized Interview Plan
+                </h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Synthesize your candidate background, resume experience, target job description, and skill gap radar into a 5-8 question blueprint tailored to your target company level.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleGeneratePlan}
+                disabled={isGeneratingPlan}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-indigo-500/20 transition-all transform active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isGeneratingPlan ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    Synthesizing Multimodal Context...
+                  </>
+                ) : (
+                  <>
+                    <PlusCircle className="w-4 h-4" />
+                    Generate Interview Plan
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* AI Parsed Resume Details Section */}
         {profile?.resumeAnalysis && (
           <div className="space-y-4">
@@ -211,8 +321,22 @@ export default function DashboardPage() {
             />
           </div>
         )}
+
+        {/* AI Parsed Job Description & Skill Gap Radar Section */}
+        {targetRole?.jdAnalysis && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-400" />
+              <h2 className="text-xl font-bold text-white">Job Specification & Skill Gap Radar</h2>
+            </div>
+            <JdAnalysisViewer
+              data={targetRole.jdAnalysis}
+              skillGap={targetRole.jdAnalysis.skillGap}
+              sourceName={targetRole.jdAnalysis.fileName || "Job Specification"}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
