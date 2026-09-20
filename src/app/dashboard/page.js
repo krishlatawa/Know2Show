@@ -191,15 +191,16 @@ export default function DashboardPage() {
                   Ready for your AI Mock Interview?
                 </h3>
                 <p className="text-xs text-slate-300 mt-1">
-                  AI will generate questions tailored to your focus areas and target role difficulty.
+                  Configure your round type (Technical, Behavioral, HR, Mixed), difficulty, pacing, and hardware sensors.
                 </p>
               </div>
-              <button
-                disabled
-                className="px-5 py-2.5 bg-indigo-600/50 text-indigo-200 text-sm font-semibold rounded-xl cursor-not-allowed flex items-center gap-1.5 opacity-80 shrink-0"
+              <Link
+                href="/interview/setup"
+                className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/20 flex items-center gap-2 shrink-0 transition-all transform active:scale-95"
               >
-                Start Replay Interview (Coming Soon)
-              </button>
+                <Zap className="w-4 h-4 text-amber-300" />
+                Configure & Start Interview
+              </Link>
             </div>
           </div>
 

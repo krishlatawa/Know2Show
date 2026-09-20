@@ -12,15 +12,16 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  password      String?   // For bcryptjs credentials auth
-  image         String?
-  isOnboarded   Boolean   @default(false)
-  profile       Profile?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                String             @id @default(cuid())
+  name              String?
+  email             String?            @unique
+  password          String?            // For bcryptjs credentials auth
+  image             String?
+  isOnboarded       Boolean            @default(false)
+  profile           Profile?
+  interviewSessions InterviewSession[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 }
 
 model Profile {
@@ -108,3 +109,25 @@ model ResumeAnalysis {
   updatedAt      DateTime @updatedAt
 }
 
+model InterviewSession {
+  id                   String    @id @default(cuid())
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetRoleId         String?
+  interviewType        String    // TECHNICAL, BEHAVIORAL, HR, MIXED
+  difficulty           String    // EASY, MEDIUM, HARD, FAANG_LEVEL
+  questionCount        Int       @default(5)
+  totalDurationMinutes Int       @default(30)
+  enableVideo          Boolean   @default(true)
+  enableAudio          Boolean   @default(true)
+  status               String    @default("INITIALIZED") // INITIALIZED, IN_PROGRESS, COMPLETED, ABANDONED
+  selectedQuestions    Json      // Question blueprints selected for this run
+  currentQuestionIndex Int       @default(0)             // ← Added: Current active question pointer
+  transcript           Json?     // ← Added: Array of analyzed turns (answers, rubrics, feedback)
+  overallScore         Float?    // ← Added: Cumulative score (0-100)
+  feedbackSummary      Json?     // ← Added: Final executive feedback & replay metrics
+  startedAt            DateTime?
+  endedAt              DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
