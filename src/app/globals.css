@@ -1,8 +1,34 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Know2Show Warm Ivory & Espresso Design Tokens */
+  --background: #F7F5F0;
+  --foreground: #211A16;
+  
+  /* Surfaces */
+  --surface-base: #FFFFFF;
+  --surface-card: #FAF9F5;
+  --surface-tinted: #EFECE4;
+  --surface-hover: #EAE6DC;
+  
+  /* Borders */
+  --border-subtle: #EDE8DF;
+  --border-default: #E2DDD3;
+  --border-strong: #211A16;
+  
+  /* Text / Content */
+  --text-primary: #211A16;
+  --text-secondary: #6B635B;
+  --text-muted: #968E85;
+  
+  /* Brand Accent */
+  --accent-espresso: #211A16;
+  --accent-espresso-hover: #352B25;
+  
+  /* Semantic Restrained Tones */
+  --semantic-success: #2A6A4E;
+  --semantic-warning: #9E651E;
+  --semantic-error: #9B2C2C;
 }
 
 @theme inline {
@@ -12,15 +38,56 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Restrained Warm Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F7F5F0;
+}
+::-webkit-scrollbar-thumb {
+  background: #DDD7CC;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C4BCAD;
+}
+
+/* Warm Surface Utilities */
+.surface-card {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+}
+
+.surface-tinted {
+  background-color: var(--surface-tinted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+}
+
+.surface-interactive {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  transition: all 120ms ease;
+}
+.surface-interactive:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+/* Selection Color */
+::selection {
+  background: #211A16;
+  color: #F7F5F0;
 }

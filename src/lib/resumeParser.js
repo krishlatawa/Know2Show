@@ -1,4 +1,4 @@
-import { ai } from "./gemini";
+import { ai, callGeminiWithRetry } from "./gemini";
 
 /**
  * Prompt instruction to guide Gemini to extract structured Skills, Projects, Experience, and Technologies.
@@ -157,19 +157,20 @@ export async function analyzeResume({ fileBuffer, mimeType, rawText }) {
     throw new Error("Either a file or resume raw text must be provided.");
   }
 
-  // Model hierarchy: gemini-2.5-flash -> gemini-2.0-flash -> gemini-1.5-flash
   const modelName = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
-  const response = await ai.models.generateContent({
-    model: modelName,
-    contents: parts,
-    config: {
-      systemInstruction: RESUME_ANALYSIS_SYSTEM_INSTRUCTION,
-      responseMimeType: "application/json",
-      responseSchema: RESUME_JSON_SCHEMA,
-      temperature: 0.1, // low temperature for high extraction consistency
-    },
-  });
+  const response = await callGeminiWithRetry(() =>
+    ai.models.generateContent({
+      model: modelName,
+      contents: parts,
+      config: {
+        systemInstruction: RESUME_ANALYSIS_SYSTEM_INSTRUCTION,
+        responseMimeType: "application/json",
+        responseSchema: RESUME_JSON_SCHEMA,
+        temperature: 0.1, // low temperature for high extraction consistency
+      },
+    })
+  );
 
   const responseText = response.text;
   if (!responseText) {

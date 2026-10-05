@@ -15,6 +15,7 @@ import {
   Layers,
   ChevronRight,
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export default function ResumeAnalysisViewer({
   data,
@@ -22,7 +23,7 @@ export default function ResumeAnalysisViewer({
   onApplyToProfile,
   isApplied = false,
 }) {
-  const [activeTab, setActiveTab] = useState("skills"); // "skills" | "projects" | "experience" | "education"
+  const [activeTab, setActiveTab] = useState("skills");
 
   if (!data) return null;
 
@@ -47,57 +48,56 @@ export default function ResumeAnalysisViewer({
   ];
 
   return (
-    <div className="w-full bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-xl shadow-2xl space-y-6">
+    <div className="w-full bg-[#FAF9F5] border border-[#D8D2C5] rounded-lg p-4 sm:p-5.5 space-y-5">
       {/* Top Banner: Extracted Summary & Quick Apply */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-800">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4.5 border-b border-[#D8D2C5]">
         <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-full flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" />
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="px-2 py-0.5 bg-[#EFECE4] border border-[#D8D2C5] text-[#211A16] text-[10.5px] font-mono font-medium uppercase tracking-wider rounded flex items-center gap-1">
+              <CheckCircle className="w-3 h-3 text-[#211A16]" />
               AI Extracted
             </span>
             {sourceName && (
-              <span className="text-xs text-slate-400 truncate max-w-xs">from {sourceName}</span>
+              <span className="text-[11px] font-mono text-[#968E85] truncate max-w-xs">
+                from {sourceName}
+              </span>
             )}
-            <span className="px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium rounded-full">
+            <span className="px-2 py-0.5 bg-[#EAE6DF] border border-[#D8D2C5] text-[#6B635B] text-[10.5px] font-mono rounded">
               {seniorityLevel} ({totalYearsExp} yrs exp)
             </span>
           </div>
-          <h3 className="text-lg font-bold text-white tracking-tight">
+
+          <h3 className="text-base sm:text-lg font-medium text-[#211A16] tracking-tight">
             {candidateName || "Candidate Profile"}
             {headline ? ` — ${headline}` : ""}
           </h3>
-          {bio && <p className="text-xs text-slate-300 leading-relaxed max-w-2xl">{bio}</p>}
+          {bio && <p className="text-xs sm:text-[13px] text-[#6B635B] leading-relaxed max-w-2xl">{bio}</p>}
         </div>
 
         {onApplyToProfile && (
-          <button
-            type="button"
-            onClick={onApplyToProfile}
-            disabled={isApplied}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-xs tracking-wide shadow-lg transition-all transform active:scale-95 shrink-0 ${
-              isApplied
-                ? "bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 cursor-default"
-                : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-indigo-500/20 hover:shadow-indigo-500/30"
-            }`}
-          >
+          <div className="shrink-0">
             {isApplied ? (
-              <>
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
-                Applied to Onboarding Form
-              </>
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#EFECE4] border border-[#D8D2C5] text-[#211A16] text-xs font-mono font-medium rounded-lg select-none">
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span>Applied to Profile</span>
+              </div>
             ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
+              <Button
+                variant="primary"
+                size="md"
+                onClick={onApplyToProfile}
+                leftIcon={Sparkles}
+                className="text-xs tracking-wider"
+              >
                 Auto-Fill Profile Details
-              </>
+              </Button>
             )}
-          </button>
+          </div>
         )}
       </div>
 
       {/* Tabs Switcher */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1.5 border-b border-[#E2DDD3] pb-2 overflow-x-auto no-scrollbar">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -106,21 +106,23 @@ export default function ResumeAnalysisViewer({
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-mono uppercase tracking-wider transition-colors shrink-0 ${
                 isActive
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20 font-semibold"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                  ? "bg-[#211A16] text-[#F7F5F0] font-semibold"
+                  : "text-[#6B635B] hover:text-[#211A16] hover:bg-[#EFECE4]"
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
-              {tab.label}
-              <span
-                className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-                  isActive ? "bg-indigo-700 text-white" : "bg-slate-800 text-slate-400"
-                }`}
-              >
-                {tab.count}
-              </span>
+              <span>{tab.label}</span>
+              {tab.count !== undefined && (
+                <span
+                  className={`px-1.5 py-0.2 rounded text-[10px] ${
+                    isActive ? "bg-[#352B25] text-[#F7F5F0]" : "bg-[#EAE6DF] text-[#6B635B]"
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              )}
             </button>
           );
         })}
@@ -128,25 +130,27 @@ export default function ResumeAnalysisViewer({
 
       {/* Tab 1: Skills & Technologies */}
       {activeTab === "skills" && (
-        <div className="space-y-5 animate-fadeIn">
+        <div className="space-y-4 animate-fadeIn">
           {skills && skills.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-indigo-400" />
+            <div className="space-y-2.5">
+              <h4 className="text-[11px] font-mono font-semibold text-[#6B635B] uppercase tracking-wider flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-[#211A16]" />
                 Categorized Core Competencies
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {skills.map((cat, idx) => (
                   <div
                     key={idx}
-                    className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-xl space-y-2"
+                    className="p-3.5 bg-white border border-[#E2DDD3] rounded-lg space-y-2"
                   >
-                    <p className="text-xs font-semibold text-indigo-300">{cat.category}</p>
+                    <p className="text-xs font-mono font-semibold text-[#211A16] uppercase tracking-wider">
+                      {cat.category}
+                    </p>
                     <div className="flex flex-wrap gap-1.5">
                       {cat.items?.map((item, i) => (
                         <span
                           key={i}
-                          className="px-2 py-0.5 bg-slate-800 text-slate-200 text-xs rounded-md border border-slate-700/60"
+                          className="px-2 py-0.5 bg-[#EFECE4] text-[#211A16] text-xs font-mono rounded border border-[#D8D2C5]"
                         >
                           {item}
                         </span>
@@ -159,16 +163,16 @@ export default function ResumeAnalysisViewer({
           )}
 
           {technologies && technologies.length > 0 && (
-            <div className="space-y-2 pt-2">
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Code className="w-3.5 h-3.5 text-purple-400" />
+            <div className="space-y-2 pt-1">
+              <h4 className="text-[11px] font-mono font-semibold text-[#6B635B] uppercase tracking-wider flex items-center gap-1.5">
+                <Code className="w-3.5 h-3.5 text-[#211A16]" />
                 All Detected Technologies & Tools ({technologies.length})
               </h4>
-              <div className="flex flex-wrap gap-1.5 p-3.5 bg-slate-950/40 border border-slate-800/60 rounded-xl">
+              <div className="flex flex-wrap gap-1.5 p-3.5 bg-white border border-[#E2DDD3] rounded-lg">
                 {technologies.map((tech, idx) => (
                   <span
                     key={idx}
-                    className="px-2.5 py-1 bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs rounded-lg font-medium"
+                    className="px-2.5 py-1 bg-[#EAE6DF] border border-[#D8D2C5] text-[#211A16] text-xs font-mono rounded font-medium"
                   >
                     {tech}
                   </span>
@@ -183,24 +187,25 @@ export default function ResumeAnalysisViewer({
       {activeTab === "projects" && (
         <div className="space-y-3 animate-fadeIn">
           {projects && projects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               {projects.map((proj, idx) => (
                 <div
                   key={idx}
-                  className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3 flex flex-col justify-between hover:border-slate-700 transition-colors"
+                  className="p-4 bg-white border border-[#E2DDD3] rounded-lg space-y-2.5 flex flex-col justify-between hover:border-[#211A16]/40 transition-colors"
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <div className="flex items-start justify-between gap-2">
-                      <h4 className="text-sm font-semibold text-white tracking-tight">
+                      <h4 className="text-sm font-semibold text-[#211A16] tracking-tight">
                         {proj.title}
                       </h4>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         {proj.githubUrl && (
                           <a
                             href={proj.githubUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800"
+                            className="p-1 text-[#6B635B] hover:text-[#211A16] rounded hover:bg-[#EFECE4]"
+                            aria-label="GitHub repository"
                           >
                             <GitBranch className="w-3.5 h-3.5" />
                           </a>
@@ -210,7 +215,8 @@ export default function ResumeAnalysisViewer({
                             href={proj.liveUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800"
+                            className="p-1 text-[#6B635B] hover:text-[#211A16] rounded hover:bg-[#EFECE4]"
+                            aria-label="Live project URL"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>
@@ -219,18 +225,20 @@ export default function ResumeAnalysisViewer({
                     </div>
 
                     {proj.role && (
-                      <span className="inline-block text-[11px] font-medium text-indigo-400">
+                      <span className="inline-block text-[11px] font-mono text-[#6B635B]">
                         Role: {proj.role}
                       </span>
                     )}
 
-                    <p className="text-xs text-slate-300 leading-relaxed">{proj.description}</p>
+                    <p className="text-xs sm:text-[12.5px] text-[#6B635B] leading-relaxed">
+                      {proj.description}
+                    </p>
 
                     {proj.highlights && proj.highlights.length > 0 && (
                       <ul className="space-y-1 pt-1">
                         {proj.highlights.map((h, i) => (
-                          <li key={i} className="text-xs text-slate-400 flex items-start gap-1.5">
-                            <span className="text-indigo-400 mt-0.5">•</span>
+                          <li key={i} className="text-xs text-[#6B635B] flex items-start gap-1.5">
+                            <span className="text-[#211A16] font-bold mt-0.5">•</span>
                             <span>{h}</span>
                           </li>
                         ))}
@@ -239,11 +247,11 @@ export default function ResumeAnalysisViewer({
                   </div>
 
                   {proj.technologiesUsed && proj.technologiesUsed.length > 0 && (
-                    <div className="flex flex-wrap gap-1 pt-2 border-t border-slate-800/60">
+                    <div className="flex flex-wrap gap-1 pt-2 border-t border-[#E2DDD3]">
                       {proj.technologiesUsed.map((tech, i) => (
                         <span
                           key={i}
-                          className="px-2 py-0.5 bg-slate-800/80 text-slate-300 text-[10px] rounded border border-slate-700"
+                          className="px-2 py-0.5 bg-[#FAF9F5] text-[#6B635B] text-[10.5px] font-mono rounded border border-[#E2DDD3]"
                         >
                           {tech}
                         </span>
@@ -254,7 +262,9 @@ export default function ResumeAnalysisViewer({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-500 py-6 text-center">No projects detected in resume.</p>
+            <p className="text-xs font-mono text-[#968E85] py-6 text-center">
+              No projects detected in resume.
+            </p>
           )}
         </div>
       )}
@@ -263,17 +273,17 @@ export default function ResumeAnalysisViewer({
       {activeTab === "experience" && (
         <div className="space-y-3 animate-fadeIn">
           {experience && experience.length > 0 ? (
-            <div className="space-y-3 relative before:absolute before:inset-0 before:left-3.5 before:w-0.5 before:bg-slate-800">
+            <div className="space-y-3 relative before:absolute before:inset-0 before:left-3.5 before:w-px before:bg-[#E2DDD3]">
               {experience.map((exp, idx) => (
-                <div key={idx} className="relative pl-8 space-y-2">
-                  <div className="absolute left-2 top-1.5 w-3.5 h-3.5 bg-indigo-600 border-2 border-slate-950 rounded-full" />
-                  <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2">
+                <div key={idx} className="relative pl-7 space-y-2">
+                  <div className="absolute left-2 top-2 w-3 h-3 bg-[#211A16] border-2 border-[#FAF9F5] rounded-full" />
+                  <div className="p-4 bg-white border border-[#E2DDD3] rounded-lg space-y-2">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                       <div>
-                        <h4 className="text-sm font-bold text-white">{exp.role}</h4>
-                        <p className="text-xs font-medium text-indigo-400">{exp.company}</p>
+                        <h4 className="text-sm font-semibold text-[#211A16]">{exp.role}</h4>
+                        <p className="text-xs font-mono text-[#6B635B]">{exp.company}</p>
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-slate-400">
+                      <div className="flex items-center gap-3 text-[11px] font-mono text-[#968E85]">
                         {(exp.startDate || exp.endDate) && (
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
@@ -290,14 +300,16 @@ export default function ResumeAnalysisViewer({
                     </div>
 
                     {exp.description && (
-                      <p className="text-xs text-slate-300 leading-relaxed">{exp.description}</p>
+                      <p className="text-xs sm:text-[12.5px] text-[#6B635B] leading-relaxed">
+                        {exp.description}
+                      </p>
                     )}
 
                     {exp.achievements && exp.achievements.length > 0 && (
                       <div className="space-y-1 pt-1">
                         {exp.achievements.map((ach, i) => (
-                          <p key={i} className="text-xs text-slate-400 flex items-start gap-1.5">
-                            <ChevronRight className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                          <p key={i} className="text-xs text-[#6B635B] flex items-start gap-1.5">
+                            <ChevronRight className="w-3.5 h-3.5 text-[#211A16] shrink-0 mt-0.5" />
                             <span>{ach}</span>
                           </p>
                         ))}
@@ -305,11 +317,11 @@ export default function ResumeAnalysisViewer({
                     )}
 
                     {exp.technologiesUsed && exp.technologiesUsed.length > 0 && (
-                      <div className="flex flex-wrap gap-1 pt-2 border-t border-slate-800/60">
+                      <div className="flex flex-wrap gap-1 pt-2 border-t border-[#E2DDD3]">
                         {exp.technologiesUsed.map((tech, i) => (
                           <span
                             key={i}
-                            className="px-2 py-0.5 bg-slate-800/80 text-slate-300 text-[10px] rounded border border-slate-700"
+                            className="px-2 py-0.5 bg-[#FAF9F5] text-[#6B635B] text-[10.5px] font-mono rounded border border-[#E2DDD3]"
                           >
                             {tech}
                           </span>
@@ -321,7 +333,9 @@ export default function ResumeAnalysisViewer({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-500 py-6 text-center">No work experience detected.</p>
+            <p className="text-xs font-mono text-[#968E85] py-6 text-center">
+              No work experience detected.
+            </p>
           )}
         </div>
       )}
@@ -334,24 +348,27 @@ export default function ResumeAnalysisViewer({
               {education.map((edu, idx) => (
                 <div
                   key={idx}
-                  className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl space-y-1.5"
+                  className="p-4 bg-white border border-[#E2DDD3] rounded-lg space-y-1"
                 >
-                  <h4 className="text-sm font-semibold text-white">{edu.degree}</h4>
-                  <p className="text-xs text-indigo-400 font-medium">{edu.institution}</p>
+                  <h4 className="text-sm font-semibold text-[#211A16]">{edu.degree}</h4>
+                  <p className="text-xs font-mono text-[#6B635B]">{edu.institution}</p>
                   {edu.fieldOfStudy && (
-                    <p className="text-xs text-slate-400">Field: {edu.fieldOfStudy}</p>
+                    <p className="text-[11px] font-mono text-[#968E85]">Field: {edu.fieldOfStudy}</p>
                   )}
                   {edu.graduationYear && (
-                    <p className="text-xs text-slate-500">Graduation: {edu.graduationYear}</p>
+                    <p className="text-[11px] font-mono text-[#968E85]">Graduation: {edu.graduationYear}</p>
                   )}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-500 py-6 text-center">No education entries detected.</p>
+            <p className="text-xs font-mono text-[#968E85] py-6 text-center">
+              No education entries detected.
+            </p>
           )}
         </div>
       )}
     </div>
   );
 }
+

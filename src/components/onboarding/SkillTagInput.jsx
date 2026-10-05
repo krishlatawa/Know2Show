@@ -33,31 +33,39 @@ export default function SkillTagInput({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-1.5">
       {label && (
-        <label className="block text-sm font-medium text-slate-300 mb-1.5">
-          {label}
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="block text-[11px] font-mono font-medium uppercase tracking-wider text-[#6B635B]">
+            {label}
+          </label>
+          <span className="text-[10.5px] font-mono text-[#968E85]">
+            {tags.length} added
+          </span>
+        </div>
       )}
 
       {/* Input Box & Active Tags Container */}
       <div
-        className={`w-full min-h-[48px] p-2 bg-slate-900/80 backdrop-blur border ${
-          error ? "border-rose-500/80 focus-within:ring-rose-500/30" : "border-slate-800 focus-within:border-indigo-500 focus-within:ring-indigo-500/20"
-        } rounded-xl flex flex-wrap items-center gap-2 transition-all focus-within:ring-4`}
+        className={`w-full min-h-[46px] p-2 bg-white border ${
+          error
+            ? "border-[#9B2C2C] focus-within:border-[#9B2C2C] focus-within:ring-1 focus-within:ring-[#9B2C2C]/20"
+            : "border-[#D8D2C5] focus-within:border-[#211A16] focus-within:ring-1 focus-within:ring-[#211A16]/20"
+        } rounded-lg flex flex-wrap items-center gap-1.5 transition-all`}
       >
         {tags.map((tag, idx) => (
           <span
             key={idx}
-            className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-950/80 border border-indigo-700/50 text-indigo-200 text-sm font-medium rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-200"
+            className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#EFECE4] border border-[#D0C9BC] text-[#211A16] text-xs font-mono font-medium rounded-md animate-in fade-in zoom-in-95 duration-150"
           >
             {tag}
             <button
               type="button"
               onClick={() => removeTag(idx)}
-              className="text-indigo-400 hover:text-indigo-100 hover:bg-indigo-900/50 rounded p-0.5 transition-colors"
+              className="text-[#968E85] hover:text-[#211A16] hover:bg-[#E2DDD3]/60 rounded p-0.5 transition-colors"
+              aria-label={`Remove ${tag}`}
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3 h-3" />
             </button>
           </span>
         ))}
@@ -69,16 +77,18 @@ export default function SkillTagInput({
           onKeyDown={handleKeyDown}
           onBlur={() => inputValue && addTag(inputValue)}
           placeholder={tags.length === 0 ? placeholder : "Add another..."}
-          className="flex-1 min-w-[140px] bg-transparent border-none outline-none text-slate-100 text-sm placeholder-slate-500 px-1 py-1"
+          className="flex-1 min-w-[140px] bg-transparent border-none outline-none text-[#211A16] text-sm placeholder-[#968E85] px-1.5 py-1"
         />
       </div>
 
-      {error && <p className="mt-1 text-xs text-rose-400 font-medium">{error}</p>}
+      {error && <p className="text-[11px] font-mono text-[#9B2C2C]">{error}</p>}
 
       {/* Popular Suggestions */}
       {suggestions.length > 0 && (
-        <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-          <span className="text-xs text-slate-400 mr-1">Suggestions:</span>
+        <div className="pt-1 flex flex-wrap items-center gap-1.5">
+          <span className="text-[10.5px] font-mono text-[#968E85] uppercase tracking-wider mr-1">
+            Suggestions:
+          </span>
           {suggestions
             .filter((s) => !tags.includes(s))
             .slice(0, 6)
@@ -87,9 +97,9 @@ export default function SkillTagInput({
                 key={suggestion}
                 type="button"
                 onClick={() => addTag(suggestion)}
-                className="inline-flex items-center gap-1 text-xs px-2.5 py-1 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-slate-600 text-slate-300 rounded-md transition-colors"
+                className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 bg-[#FAF9F5] hover:bg-[#EFECE4] border border-[#E2DDD3] hover:border-[#D8D2C5] text-[#6B635B] hover:text-[#211A16] rounded transition-colors"
               >
-                <Plus className="w-3 h-3 text-indigo-400" />
+                <Plus className="w-2.5 h-2.5 text-[#968E85]" />
                 {suggestion}
               </button>
             ))}
@@ -98,3 +108,4 @@ export default function SkillTagInput({
     </div>
   );
 }
+

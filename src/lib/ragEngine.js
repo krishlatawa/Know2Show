@@ -1,4 +1,4 @@
-import { ai } from "./gemini";
+import { ai, callGeminiWithRetry } from "./gemini";
 
 const RAG_PLAN_SYSTEM_INSTRUCTION = `
 You are an elite Lead Interviewer and Technical Assessment Architect for top software engineering companies (FAANG, High-Growth Startups, Enterprise Tech).
@@ -134,16 +134,18 @@ Generate a balanced 5-to-8 question blueprint. Ensure at least 1-2 questions spe
 
   const modelName = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
-  const response = await ai.models.generateContent({
-    model: modelName,
-    contents: [{ text: userContextPrompt }],
-    config: {
-      systemInstruction: RAG_PLAN_SYSTEM_INSTRUCTION,
-      responseMimeType: "application/json",
-      responseSchema: INTERVIEW_PLAN_JSON_SCHEMA,
-      temperature: 0.2, // Slightly higher for varied questions, yet structured
-    },
-  });
+  const response = await callGeminiWithRetry(() =>
+    ai.models.generateContent({
+      model: modelName,
+      contents: [{ text: userContextPrompt }],
+      config: {
+        systemInstruction: RAG_PLAN_SYSTEM_INSTRUCTION,
+        responseMimeType: "application/json",
+        responseSchema: INTERVIEW_PLAN_JSON_SCHEMA,
+        temperature: 0.2, // Slightly higher for varied questions, yet structured
+      },
+    })
+  );
 
   const responseText = response.text;
   if (!responseText) {

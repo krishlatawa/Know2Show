@@ -10,6 +10,7 @@ import {
   Loader2,
   X,
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export default function JdUploadDropzone({ onAnalysisComplete, disabled = false }) {
   const [dragActive, setDragActive] = useState(false);
@@ -84,7 +85,7 @@ export default function JdUploadDropzone({ onAnalysisComplete, disabled = false 
       const formData = new FormData();
       formData.append("file", file);
 
-      setTimeout(() => setAnalysisStep("Gemini AI extracting Required Skills, Responsibilities & Expectations..."), 800);
+      setTimeout(() => setAnalysisStep("Extracting required competencies & expectations with Gemini..."), 700);
 
       const res = await fetch("/api/jd/analyze", {
         method: "POST",
@@ -118,7 +119,7 @@ export default function JdUploadDropzone({ onAnalysisComplete, disabled = false 
 
     setIsAnalyzing(true);
     setErrorMessage("");
-    setAnalysisStep("Analyzing Job Description with Gemini AI...");
+    setAnalysisStep("Analyzing Job Description with Gemini...");
 
     try {
       const res = await fetch("/api/jd/analyze", {
@@ -155,16 +156,20 @@ export default function JdUploadDropzone({ onAnalysisComplete, disabled = false 
   };
 
   return (
-    <div className="w-full bg-slate-900/60 border border-slate-800 rounded-2xl p-5 backdrop-blur-md shadow-xl">
+    <div className="w-full bg-[#ECE7DD] border border-[#D8D2C5] rounded-lg p-4 sm:p-5 space-y-3.5">
       {/* Header & Mode Switcher */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded-lg text-purple-400">
-            <Sparkles className="w-4 h-4" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="w-6 h-6 rounded bg-[#211A16] text-[#F7F5F0] flex items-center justify-center shrink-0">
+            <Sparkles className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">AI Job Specification Analyzer</h3>
-            <p className="text-xs text-slate-400">Parse PDF, Image Screenshot, or Pasted JD Text</p>
+            <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-[#211A16]">
+              AI Job Description Assist (Optional)
+            </h3>
+            <p className="text-[11.5px] text-[#6B635B]">
+              Upload a Job Description or screenshot to auto-extract required topics and calculate your skill gap.
+            </p>
           </div>
         </div>
 
@@ -175,9 +180,9 @@ export default function JdUploadDropzone({ onAnalysisComplete, disabled = false 
             handleReset();
           }}
           disabled={isAnalyzing || disabled}
-          className="text-xs text-purple-400 hover:text-purple-300 transition-colors font-medium underline underline-offset-4"
+          className="text-[11px] font-mono text-[#6B635B] hover:text-[#211A16] underline underline-offset-4 transition-colors self-start sm:self-auto shrink-0"
         >
-          {textMode ? "Upload File/Screenshot instead" : "Paste text instead"}
+          {textMode ? "Upload File/Screenshot instead" : "or paste JD text"}
         </button>
       </div>
 
@@ -189,10 +194,10 @@ export default function JdUploadDropzone({ onAnalysisComplete, disabled = false 
           onDragOver={handleDrag}
           onDrop={handleDrop}
           onClick={() => !isAnalyzing && !disabled && fileInputRef.current?.click()}
-          className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 ${
+          className={`relative border-2 border-dashed rounded-lg p-5 sm:p-6 text-center cursor-pointer transition-all duration-150 ${
             dragActive
-              ? "border-purple-500 bg-purple-500/10 scale-[1.01]"
-              : "border-slate-700/80 hover:border-slate-600 bg-slate-950/40 hover:bg-slate-950/70"
+              ? "border-[#211A16] bg-[#FAF9F5] scale-[1.005]"
+              : "border-[#C5BDAF] hover:border-[#211A16]/60 bg-white hover:bg-[#FAF9F5]"
           } ${isAnalyzing ? "pointer-events-none opacity-80" : ""}`}
         >
           <input
@@ -205,27 +210,32 @@ export default function JdUploadDropzone({ onAnalysisComplete, disabled = false 
           />
 
           {isAnalyzing ? (
-            <div className="flex flex-col items-center justify-center py-4 space-y-3">
-              <div className="relative">
-                <div className="w-12 h-12 rounded-full border-2 border-purple-500/30 border-t-purple-400 animate-spin" />
-                <Sparkles className="w-5 h-5 text-purple-400 absolute inset-0 m-auto animate-pulse" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-white">{analysisStep || "Analyzing Job Description..."}</p>
-                <p className="text-xs text-slate-400">Extracting requirements & matching candidate skill gap</p>
+            <div className="flex flex-col items-center justify-center py-3 space-y-2.5">
+              <Loader2 className="w-7 h-7 animate-spin text-[#211A16]" />
+              <div className="space-y-0.5">
+                <p className="text-xs sm:text-[13px] font-medium text-[#211A16]">
+                  {analysisStep || "Analyzing Job Description..."}
+                </p>
+                <p className="text-[10.5px] font-mono text-[#968E85] uppercase tracking-wider">
+                  Extracting requirements & matching candidate skill gap
+                </p>
               </div>
             </div>
           ) : selectedFile ? (
-            <div className="flex items-center justify-between bg-slate-800/80 border border-slate-700 rounded-lg p-3">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between bg-white border border-[#D8D2C5] rounded-md p-2.5 sm:p-3">
+              <div className="flex items-center gap-2.5">
                 {selectedFile.type?.includes("image") ? (
-                  <ImageIcon className="w-6 h-6 text-purple-400" />
+                  <ImageIcon className="w-5 h-5 text-[#211A16] shrink-0" />
                 ) : (
-                  <FileText className="w-6 h-6 text-purple-400" />
+                  <FileText className="w-5 h-5 text-[#211A16] shrink-0" />
                 )}
                 <div className="text-left">
-                  <p className="text-sm font-medium text-white truncate max-w-xs">{selectedFile.name}</p>
-                  <p className="text-xs text-slate-400">{(selectedFile.size / 1024).toFixed(1)} KB</p>
+                  <p className="text-xs sm:text-sm font-medium text-[#211A16] truncate max-w-[200px] sm:max-w-xs">
+                    {selectedFile.name}
+                  </p>
+                  <p className="text-[10.5px] font-mono text-[#6B635B]">
+                    {(selectedFile.size / 1024).toFixed(1)} KB
+                  </p>
                 </div>
               </div>
               <button
@@ -234,70 +244,63 @@ export default function JdUploadDropzone({ onAnalysisComplete, disabled = false 
                   e.stopPropagation();
                   handleReset();
                 }}
-                className="p-1 text-slate-400 hover:text-white rounded-md hover:bg-slate-700"
+                className="p-1 text-[#6B635B] hover:text-[#211A16] rounded hover:bg-[#EFECE4] transition-colors"
+                aria-label="Remove selected file"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center space-y-2">
-              <div className="flex items-center gap-2 p-3 bg-slate-800/70 rounded-full text-slate-300">
-                <UploadCloud className="w-5 h-5 text-purple-400" />
-                <ImageIcon className="w-5 h-5 text-indigo-400" />
+            <div className="flex flex-col items-center justify-center space-y-1.5">
+              <div className="flex items-center gap-1.5 p-2 bg-[#EAE6DF] border border-[#D8D2C5] rounded-full text-[#211A16] mb-0.5">
+                <UploadCloud className="w-4 h-4 text-[#6B635B]" />
+                <ImageIcon className="w-4 h-4 text-[#6B635B]" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-slate-200">
-                  <span className="text-purple-400">Click to upload</span> or drag and drop
-                </p>
-                <p className="text-xs text-slate-500 mt-1">PDF, TXT, or Image Screenshot (PNG, JPG, WEBP up to 5MB)</p>
-              </div>
+              <p className="text-xs sm:text-[13px] font-medium text-[#211A16]">
+                <span className="font-semibold underline underline-offset-2">Click to upload</span> or drag and drop
+              </p>
+              <p className="text-[10.5px] font-mono text-[#968E85] uppercase tracking-wider">
+                PDF, TXT, or Image Screenshot (PNG, JPG, WEBP • Up to 5MB)
+              </p>
             </div>
           )}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <textarea
-            rows={5}
+            rows={4}
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
             disabled={isAnalyzing || disabled}
             placeholder="Paste full Job Description / LinkedIn Job Posting text here..."
-            className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl p-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+            className="w-full bg-white border border-[#D8D2C5] rounded-lg p-3 text-xs sm:text-sm text-[#211A16] placeholder-[#968E85] focus:outline-none focus:border-[#211A16] focus:ring-1 focus:ring-[#211A16]/20 resize-none font-sans"
           />
           <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleReset}
-              disabled={isAnalyzing || disabled}
-              className="px-3 py-1.5 text-xs text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+              disabled={isAnalyzing || disabled || !rawText}
             >
               Clear
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
               onClick={triggerTextAnalysis}
+              isLoading={isAnalyzing}
               disabled={isAnalyzing || disabled || rawText.trim().length < 30}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg shadow transition-colors"
+              leftIcon={Sparkles}
             >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Extract & Match Skills
-                </>
-              )}
-            </button>
+              Extract & Match Skills
+            </Button>
           </div>
         </div>
       )}
 
       {/* Error display */}
       {errorMessage && (
-        <div className="mt-3 flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs">
+        <div className="flex items-start gap-2 p-3 bg-[#F9ECEC] border border-[#ECC8C8] rounded-lg text-[#9B2C2C] text-xs font-mono">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{errorMessage}</span>
         </div>
@@ -305,3 +308,4 @@ export default function JdUploadDropzone({ onAnalysisComplete, disabled = false 
     </div>
   );
 }
+

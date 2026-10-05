@@ -19,6 +19,8 @@ import {
   XCircle,
   MinusCircle,
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 
 export default function InterviewPlanViewer({
   plan,
@@ -33,7 +35,7 @@ export default function InterviewPlanViewer({
   const { title, difficulty = "MEDIUM", summary, questions = [] } = plan;
 
   const categories = [
-    { id: "ALL", label: `All Questions (${questions.length})` },
+    { id: "ALL", label: "All Questions", count: questions.length },
     {
       id: "GAP_PROBING",
       label: "Gap Probing",
@@ -65,32 +67,16 @@ export default function InterviewPlanViewer({
       ? questions
       : questions.filter((q) => q.category === activeCategoryFilter);
 
-  const getCategoryBadgeStyle = (category) => {
+  const getCategoryBadgeVariant = (category) => {
     switch (category) {
       case "GAP_PROBING":
-        return "bg-rose-500/10 border-rose-500/30 text-rose-400";
+        return "neutral";
       case "SYSTEM_DESIGN":
-        return "bg-purple-500/10 border-purple-500/30 text-purple-400";
       case "TECHNICAL":
-        return "bg-indigo-500/10 border-indigo-500/30 text-indigo-400";
+        return "espresso";
       case "BEHAVIORAL":
-        return "bg-amber-500/10 border-amber-500/30 text-amber-400";
       default:
-        return "bg-slate-800 border-slate-700 text-slate-300";
-    }
-  };
-
-  const getDifficultyBadgeStyle = (diff) => {
-    switch (diff?.toUpperCase()) {
-      case "HARD":
-      case "FAANG_LEVEL":
-        return "bg-rose-500/10 border-rose-500/30 text-rose-400";
-      case "MEDIUM":
-        return "bg-amber-500/10 border-amber-500/30 text-amber-400";
-      case "EASY":
-        return "bg-emerald-500/10 border-emerald-500/30 text-emerald-400";
-      default:
-        return "bg-indigo-500/10 border-indigo-500/30 text-indigo-400";
+        return "neutral";
     }
   };
 
@@ -99,77 +85,86 @@ export default function InterviewPlanViewer({
   };
 
   return (
-    <div className="w-full bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-xl shadow-2xl space-y-6">
+    <div className="w-full bg-[#FAF9F5] border border-[#D8D2C5] rounded-xl p-5 sm:p-7 shadow-[0_2px_12px_-3px_rgba(33,26,22,0.04)] space-y-6">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-800">
-        <div className="space-y-1.5">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-5 border-b border-[#E2DDD3]">
+        <div className="space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-2.5 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold rounded-full flex items-center gap-1">
-              <BrainCircuit className="w-3.5 h-3.5" />
-              AI Synthesized RAG Plan
+            <span className="px-2.5 py-0.5 bg-[#ECE7DD] border border-[#D8D2C5] text-[#211A16] text-[10.5px] font-mono font-medium uppercase tracking-wider rounded-full flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#211A16]" />
+              AI SYNTHESIZED RAG BLUEPRINT
             </span>
-            <span
-              className={`px-2.5 py-0.5 border text-xs font-bold rounded-full ${getDifficultyBadgeStyle(
-                difficulty
-              )}`}
-            >
+
+            <Badge variant="espresso" size="xs">
               {difficulty} DIFFICULTY
-            </span>
-            <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium rounded-full">
+            </Badge>
+
+            <span className="px-2 py-0.5 bg-[#EFECE4] border border-[#D8D2C5] text-[#6B635B] text-[10.5px] font-mono rounded">
               {questions.length} Blueprinted Questions
             </span>
           </div>
-          <h3 className="text-xl font-extrabold text-white tracking-tight">{title}</h3>
-          {summary && <p className="text-xs text-slate-300 max-w-3xl leading-relaxed">{summary}</p>}
+
+          <h3 className="text-xl sm:text-2xl font-normal text-[#211A16] tracking-tight leading-snug">
+            {title}
+          </h3>
+
+          {summary && (
+            <p className="text-xs sm:text-[13px] text-[#6B635B] max-w-3xl leading-relaxed">
+              {summary}
+            </p>
+          )}
         </div>
 
         {onRegenerate && (
-          <button
-            type="button"
+          <Button
+            variant="outline"
+            size="sm"
             onClick={onRegenerate}
-            disabled={isGenerating}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-xs rounded-xl shadow-md transition-all active:scale-95 shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
+            isLoading={isGenerating}
+            leftIcon={RotateCcw}
+            className="text-[11px] font-semibold font-mono uppercase tracking-wider shrink-0 py-2 px-3.5"
           >
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
-                Synthesizing New Plan...
-              </>
-            ) : (
-              <>
-                <RotateCcw className="w-3.5 h-3.5 text-indigo-400" />
-                Regenerate AI Plan
-              </>
-            )}
-          </button>
+            {isGenerating ? "Synthesizing New Plan..." : "Regenerate AI Plan"}
+          </Button>
         )}
       </div>
 
       {/* Category Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1.5 border-b border-[#E2DDD3] pb-2 overflow-x-auto no-scrollbar">
         {categories.map((cat) => {
           if (cat.count === 0 && cat.id !== "ALL") return null;
           const isActive = activeCategoryFilter === cat.id;
+          const Icon = cat.icon;
+
           return (
             <button
               key={cat.id}
               type="button"
               onClick={() => setActiveCategoryFilter(cat.id)}
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-mono uppercase tracking-wider transition-colors shrink-0 ${
                 isActive
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20 font-semibold"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                  ? "bg-[#211A16] text-[#F7F5F0] font-semibold"
+                  : "text-[#6B635B] hover:text-[#211A16] hover:bg-[#EFECE4]"
               }`}
             >
-              {cat.icon && <cat.icon className="w-3.5 h-3.5" />}
-              {cat.label}
+              {Icon && <Icon className="w-3.5 h-3.5" />}
+              <span>{cat.label}</span>
+              <span
+                className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
+                  isActive
+                    ? "bg-[#352B25] text-[#F7F5F0]"
+                    : "bg-[#ECE7DD] text-[#6B635B]"
+                }`}
+              >
+                {cat.count}
+              </span>
             </button>
           );
         })}
       </div>
 
       {/* Questions List */}
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         {filteredQuestions.map((q, idx) => {
           const isExpanded = expandedQuestionId === (q.id || idx);
           const rubric = q.evaluationRubric || {};
@@ -177,48 +172,51 @@ export default function InterviewPlanViewer({
           return (
             <div
               key={q.id || idx}
-              className={`bg-slate-950/70 border rounded-xl transition-all ${
+              className={`bg-[#FFFFFF] border rounded-lg transition-all duration-150 ${
                 isExpanded
-                  ? "border-indigo-500/50 shadow-lg shadow-indigo-500/5 ring-1 ring-indigo-500/30"
-                  : "border-slate-800 hover:border-slate-700"
+                  ? "border-[#211A16] shadow-sm ring-1 ring-[#211A16]/10"
+                  : "border-[#D8D2C5] hover:border-[#211A16]/40"
               }`}
             >
               {/* Question Header */}
               <div
                 onClick={() => toggleExpand(q.id || idx)}
-                className="p-4 cursor-pointer flex items-start justify-between gap-4 select-none"
+                className="p-4 sm:p-4.5 cursor-pointer flex items-start justify-between gap-4 select-none"
               >
-                <div className="flex items-start gap-3">
-                  <span className="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 text-indigo-400 font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                <div className="flex items-start gap-3.5">
+                  <span
+                    className={`w-7 h-7 rounded-md font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 ${
+                      isExpanded
+                        ? "bg-[#211A16] text-[#F7F5F0]"
+                        : "bg-[#ECE7DD] text-[#211A16]"
+                    }`}
+                  >
                     Q{q.order || idx + 1}
                   </span>
 
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span
-                        className={`px-2 py-0.5 border text-[11px] font-semibold rounded-md ${getCategoryBadgeStyle(
-                          q.category
-                        )}`}
+                      <Badge
+                        variant={getCategoryBadgeVariant(q.category)}
+                        size="xs"
                       >
                         {q.category?.replace(/_/g, " ")}
-                      </span>
+                      </Badge>
+
                       {q.focusTopic && (
-                        <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 text-slate-300 text-[11px] font-medium rounded-md">
+                        <span className="px-2 py-0.5 bg-[#FAF9F5] border border-[#E2DDD3] text-[#6B635B] text-[10.5px] font-mono rounded">
                           Topic: {q.focusTopic}
                         </span>
                       )}
+
                       {q.difficulty && (
-                        <span
-                          className={`px-1.5 py-0.2 border text-[10px] font-bold rounded ${getDifficultyBadgeStyle(
-                            q.difficulty
-                          )}`}
-                        >
+                        <span className="px-1.5 py-0.2 border border-[#D8D2C5] text-[#211A16] text-[10px] font-mono font-semibold rounded bg-[#FAF9F5]">
                           {q.difficulty}
                         </span>
                       )}
                     </div>
 
-                    <h4 className="text-sm font-bold text-slate-100 leading-snug">
+                    <h4 className="text-sm sm:text-[14.5px] font-medium text-[#211A16] leading-snug">
                       {q.questionText}
                     </h4>
                   </div>
@@ -226,10 +224,11 @@ export default function InterviewPlanViewer({
 
                 <button
                   type="button"
-                  className="p-1 text-slate-400 hover:text-white transition-colors shrink-0 mt-1"
+                  className="p-1 text-[#6B635B] hover:text-[#211A16] transition-colors shrink-0 mt-0.5"
+                  aria-label={isExpanded ? "Collapse question" : "Expand question"}
                 >
                   {isExpanded ? (
-                    <ChevronUp className="w-4 h-4 text-indigo-400" />
+                    <ChevronUp className="w-4 h-4 text-[#211A16]" />
                   ) : (
                     <ChevronDown className="w-4 h-4" />
                   )}
@@ -238,19 +237,19 @@ export default function InterviewPlanViewer({
 
               {/* Question Details Collapsible Content */}
               {isExpanded && (
-                <div className="px-4 pb-5 pt-2 border-t border-slate-800/80 space-y-4 animate-fadeIn">
+                <div className="px-4 pb-5 pt-3 border-t border-[#E2DDD3] space-y-4 bg-[#FAF9F5]/60 rounded-b-lg">
                   {/* Expected Concepts */}
                   {q.expectedConcepts && q.expectedConcepts.length > 0 && (
                     <div className="space-y-2">
-                      <h5 className="text-xs font-semibold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
-                        <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
-                        Expected Technical Concepts & Keywords
+                      <h5 className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#6B635B] flex items-center gap-1.5">
+                        <BookOpen className="w-3.5 h-3.5 text-[#211A16]" />
+                        Expected Technical Concepts &amp; Keywords
                       </h5>
-                      <div className="flex flex-wrap gap-1.5 p-3 bg-slate-900/60 border border-slate-800 rounded-lg">
+                      <div className="flex flex-wrap gap-1.5 p-3 bg-[#FFFFFF] border border-[#D8D2C5] rounded-lg">
                         {q.expectedConcepts.map((concept, cIdx) => (
                           <span
                             key={cIdx}
-                            className="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs rounded-md font-medium"
+                            className="px-2.5 py-1 bg-[#FAF9F5] border border-[#E2DDD3] text-[#211A16] text-xs font-mono rounded-md font-medium"
                           >
                             {concept}
                           </span>
@@ -260,51 +259,61 @@ export default function InterviewPlanViewer({
                   )}
 
                   {/* Evaluation Rubric Grid */}
-                  {typeof rubric === "object" && (rubric.poor || rubric.average || rubric.excellent) ? (
+                  {typeof rubric === "object" &&
+                  (rubric.poor || rubric.average || rubric.excellent) ? (
                     <div className="space-y-2">
-                      <h5 className="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                        Evaluation Rubric & Scoring Checklist
+                      <h5 className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#211A16] flex items-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#211A16]" />
+                        Evaluation Rubric &amp; Scoring Checklist
                       </h5>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         {rubric.poor && (
-                          <div className="p-3 bg-rose-950/20 border border-rose-800/30 rounded-lg space-y-1">
-                            <span className="text-[11px] font-bold text-rose-400 uppercase flex items-center gap-1">
-                              <XCircle className="w-3 h-3" /> Poor Answer (&lt; 50%)
+                          <div className="p-3 bg-[#FDF2F2] border border-[#F8D7DA] rounded-lg space-y-1">
+                            <span className="text-[11px] font-mono font-bold text-[#9B2C2C] uppercase flex items-center gap-1">
+                              <XCircle className="w-3 h-3" /> Poor (&lt; 50%)
                             </span>
-                            <p className="text-xs text-slate-300 leading-relaxed">{rubric.poor}</p>
+                            <p className="text-xs text-[#211A16] leading-relaxed">
+                              {rubric.poor}
+                            </p>
                           </div>
                         )}
 
                         {rubric.average && (
-                          <div className="p-3 bg-amber-950/20 border border-amber-800/30 rounded-lg space-y-1">
-                            <span className="text-[11px] font-bold text-amber-400 uppercase flex items-center gap-1">
-                              <MinusCircle className="w-3 h-3" /> Average Answer (50-80%)
+                          <div className="p-3 bg-[#FEF7E0] border border-[#FEEFC3] rounded-lg space-y-1">
+                            <span className="text-[11px] font-mono font-bold text-[#B06000] uppercase flex items-center gap-1">
+                              <MinusCircle className="w-3 h-3" /> Average (50–80%)
                             </span>
-                            <p className="text-xs text-slate-300 leading-relaxed">{rubric.average}</p>
+                            <p className="text-xs text-[#211A16] leading-relaxed">
+                              {rubric.average}
+                            </p>
                           </div>
                         )}
 
                         {rubric.excellent && (
-                          <div className="p-3 bg-emerald-950/20 border border-emerald-800/30 rounded-lg space-y-1">
-                            <span className="text-[11px] font-bold text-emerald-400 uppercase flex items-center gap-1">
+                          <div className="p-3 bg-[#E6F4EA] border border-[#CEEAD6] rounded-lg space-y-1">
+                            <span className="text-[11px] font-mono font-bold text-[#137333] uppercase flex items-center gap-1">
                               <CheckCircle2 className="w-3 h-3" /> Excellent (Top 5%)
                             </span>
-                            <p className="text-xs text-slate-300 leading-relaxed">{rubric.excellent}</p>
+                            <p className="text-xs text-[#211A16] leading-relaxed">
+                              {rubric.excellent}
+                            </p>
                           </div>
                         )}
                       </div>
                     </div>
-                  ) : Array.isArray(rubric) ? (
+                  ) : Array.isArray(rubric) && rubric.length > 0 ? (
                     <div className="space-y-2">
-                      <h5 className="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                        Evaluation Rubric & Scoring Checklist
+                      <h5 className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#211A16] flex items-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#211A16]" />
+                        Evaluation Rubric &amp; Scoring Checklist
                       </h5>
-                      <div className="space-y-1.5 p-3 bg-slate-900/60 border border-slate-800 rounded-lg">
+                      <div className="space-y-1.5 p-3.5 bg-[#FFFFFF] border border-[#D8D2C5] rounded-lg">
                         {rubric.map((criterion, rIdx) => (
-                          <p key={rIdx} className="text-xs text-slate-300 flex items-start gap-2 leading-relaxed">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                          <p
+                            key={rIdx}
+                            className="text-xs text-[#211A16] flex items-start gap-2 leading-relaxed"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#137333] shrink-0 mt-0.5" />
                             <span>{criterion}</span>
                           </p>
                         ))}
@@ -314,13 +323,13 @@ export default function InterviewPlanViewer({
 
                   {/* AI Hint & Answering Strategy */}
                   {q.hint && (
-                    <div className="p-3.5 bg-amber-950/20 border border-amber-500/30 rounded-lg space-y-1">
-                      <h5 className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                        AI Answering Strategy & Hint
+                    <div className="p-3.5 bg-[#ECE7DD] border border-[#D8D2C5] rounded-lg space-y-1">
+                      <h5 className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#211A16] flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#211A16]" />
+                        AI Answering Strategy &amp; Hint
                       </h5>
-                      <p className="text-xs text-amber-200/90 leading-relaxed font-sans">
-                        {q.hint}
+                      <p className="text-xs text-[#211A16] leading-relaxed italic">
+                        "{q.hint}"
                       </p>
                     </div>
                   )}

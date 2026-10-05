@@ -5,7 +5,9 @@ import { SENIORITY_LEVELS } from "@/lib/validations/onboarding";
 import SkillTagInput from "./SkillTagInput";
 import ResumeUploadDropzone from "@/components/resume/ResumeUploadDropzone";
 import ResumeAnalysisViewer from "@/components/resume/ResumeAnalysisViewer";
-import { User, Briefcase, Award, Globe, Link as LinkIcon, AlignLeft, Sparkles, CheckCircle2 } from "lucide-react";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { User, Briefcase, Award, Globe, Link as LinkIcon, AlignLeft, ArrowRight } from "lucide-react";
 
 const SUGGESTED_SKILLS = [
   "JavaScript", "TypeScript", "React", "Next.js", "Node.js", 
@@ -24,7 +26,6 @@ export default function CandidateProfileForm({ data, onChange, errors = {}, onNe
   const handleResumeAnalysisComplete = (parsedData, sourceName) => {
     setExtractedResume(parsedData);
     setResumeSourceName(sourceName);
-    // Auto-apply fields to the onboarding form
     applyResumeToForm(parsedData);
   };
 
@@ -32,7 +33,7 @@ export default function CandidateProfileForm({ data, onChange, errors = {}, onNe
     const skillsFromCategories = parsedData.skills?.flatMap((cat) => cat.items) || [];
     const allSkills = Array.from(
       new Set([...skillsFromCategories, ...(parsedData.technologies || [])])
-    ).slice(0, 15); // Top 15 detected skills
+    ).slice(0, 15);
 
     onChange({
       ...data,
@@ -50,164 +51,197 @@ export default function CandidateProfileForm({ data, onChange, errors = {}, onNe
     onNext();
   };
 
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-xl space-y-6">
-        <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <User className="w-5 h-5 text-indigo-400" />
-            Candidate Background
-          </h2>
-          <p className="text-sm text-slate-400 mt-1">
-            Tell us about your professional background or upload your resume to auto-fill your profile with AI.
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* 1. AI Resume Accelerator Dropzone & Analysis Viewer (Level 2 Surface) */}
+      <div className="space-y-3.5">
+        <ResumeUploadDropzone
+          onAnalysisComplete={handleResumeAnalysisComplete}
+        />
+
+        {extractedResume && (
+          <ResumeAnalysisViewer
+            data={extractedResume}
+            sourceName={resumeSourceName}
+            onApplyToProfile={() => applyResumeToForm(extractedResume)}
+            isApplied={isApplied}
+          />
+        )}
+      </div>
+
+      {/* 2. Candidate Profile Working Surface (Level 1 Primary Content) */}
+      <div className="bg-[#FFFFFF] border border-[#D8D2C5] rounded-lg p-5 sm:p-7 space-y-6">
+        {/* Main Section Header */}
+        <div className="border-b border-[#D8D2C5] pb-4">
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4 text-[#6B635B]" />
+            <h2 className="text-sm sm:text-base font-semibold text-[#211A16] tracking-tight">
+              Candidate Background & Details
+            </h2>
+          </div>
+          <p className="text-xs sm:text-[13px] text-[#6B635B] mt-0.5 leading-relaxed">
+            Specify your candidate parameters below. You can refine these at any time.
           </p>
         </div>
 
-        {/* AI Resume Upload & Parsing Section */}
+        {/* Group 1: Professional Profile */}
         <div className="space-y-4">
-          <ResumeUploadDropzone
-            onAnalysisComplete={handleResumeAnalysisComplete}
-          />
+          <div className="flex items-center gap-1.5">
+            <Briefcase className="w-3.5 h-3.5 text-[#968E85]" />
+            <h3 className="text-[10.5px] font-mono font-semibold uppercase tracking-[0.14em] text-[#968E85]">
+              Professional Profile
+            </h3>
+          </div>
 
-          {extractedResume && (
-            <ResumeAnalysisViewer
-              data={extractedResume}
-              sourceName={resumeSourceName}
-              onApplyToProfile={() => applyResumeToForm(extractedResume)}
-              isApplied={isApplied}
+          {/* Headline */}
+          <div>
+            <Input
+              label="Professional Headline *"
+              value={data.headline || ""}
+              onChange={(e) => updateField("headline", e.target.value)}
+              placeholder="e.g. Senior Frontend Engineer | React & TypeScript Specialist"
+              error={errors.headline}
+              leftIcon={Briefcase}
             />
-          )}
-        </div>
-
-
-        {/* Headline */}
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
-            <Briefcase className="w-4 h-4 text-slate-400" />
-            Professional Headline <span className="text-rose-400">*</span>
-          </label>
-          <input
-            type="text"
-            value={data.headline || ""}
-            onChange={(e) => updateField("headline", e.target.value)}
-            placeholder="e.g. Full-Stack Engineer | React & Node Specialist"
-            className={`w-full px-4 py-3 bg-slate-950/80 border ${
-              errors.headline ? "border-rose-500/80" : "border-slate-800 focus:border-indigo-500"
-            } rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all`}
-          />
-          {errors.headline && (
-            <p className="mt-1 text-xs text-rose-400 font-medium">{errors.headline}</p>
-          )}
-        </div>
-
-        {/* Seniority Level & Experience Years */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
-              <Award className="w-4 h-4 text-slate-400" />
-              Seniority Level <span className="text-rose-400">*</span>
-            </label>
-            <select
-              value={data.seniorityLevel || "MID"}
-              onChange={(e) => updateField("seniorityLevel", e.target.value)}
-              className="w-full px-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all"
-            >
-              {SENIORITY_LEVELS.map((lvl) => (
-                <option key={lvl.value} value={lvl.value} className="bg-slate-900 text-slate-100">
-                  {lvl.label}
-                </option>
-              ))}
-            </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
-              Years of Experience <span className="text-rose-400">*</span>
-            </label>
-            <div className="flex items-center gap-4">
-              <input
-                type="number"
-                min="0"
-                max="50"
-                value={data.experienceYears ?? 3}
-                onChange={(e) => updateField("experienceYears", parseInt(e.target.value) || 0)}
-                className="w-28 px-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all"
-              />
-              <span className="text-sm text-slate-400">Years in software development</span>
+          {/* Seniority Level & Experience Years */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 items-start">
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-mono font-medium uppercase tracking-wider text-[#6B635B] flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5 text-[#968E85]" />
+                Seniority Level *
+              </label>
+              <select
+                value={data.seniorityLevel || "MID"}
+                onChange={(e) => updateField("seniorityLevel", e.target.value)}
+                className="w-full rounded-lg bg-white border border-[#D8D2C5] text-[#211A16] text-sm px-3.5 py-2.5 transition-all focus:outline-none focus:border-[#211A16] focus:ring-1 focus:ring-[#211A16]/20 font-sans cursor-pointer"
+              >
+                {SENIORITY_LEVELS.map((lvl) => (
+                  <option key={lvl.value} value={lvl.value} className="bg-white text-[#211A16]">
+                    {lvl.label}
+                  </option>
+                ))}
+              </select>
             </div>
-            {errors.experienceYears && (
-              <p className="mt-1 text-xs text-rose-400 font-medium">{errors.experienceYears}</p>
-            )}
+
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-mono font-medium uppercase tracking-wider text-[#6B635B]">
+                Years of Experience *
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  min="0"
+                  max="50"
+                  value={data.experienceYears ?? 2}
+                  onChange={(e) => updateField("experienceYears", parseInt(e.target.value) || 0)}
+                  className="w-24 rounded-lg bg-white border border-[#D8D2C5] text-[#211A16] text-sm px-3.5 py-2.5 transition-all focus:outline-none focus:border-[#211A16] focus:ring-1 focus:ring-[#211A16]/20 font-mono"
+                />
+                <span className="text-xs text-[#6B635B]">years in software development</span>
+              </div>
+              {errors.experienceYears && (
+                <p className="text-[11px] font-mono text-[#9B2C2C]">{errors.experienceYears}</p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Primary Skills */}
-        <SkillTagInput
-          label="Primary Skills & Tech Stack *"
-          tags={data.skills || []}
-          onChange={(newSkills) => updateField("skills", newSkills)}
-          suggestions={SUGGESTED_SKILLS}
-          placeholder="Type skill and press Enter (e.g. React, PostgreSQL)..."
-          error={errors.skills}
-        />
+        {/* Group Divider */}
+        <div className="border-t border-[#E2DDD3]" />
 
-        {/* Bio */}
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
-            <AlignLeft className="w-4 h-4 text-slate-400" />
-            Short Bio / Intro
-          </label>
-          <textarea
-            rows="3"
-            value={data.bio || ""}
-            onChange={(e) => updateField("bio", e.target.value)}
-            placeholder="Briefly describe your career background and main achievements..."
-            className="w-full px-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all resize-none"
+        {/* Group 2: Technical Profile */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-1.5">
+            <Award className="w-3.5 h-3.5 text-[#968E85]" />
+            <h3 className="text-[10.5px] font-mono font-semibold uppercase tracking-[0.14em] text-[#968E85]">
+              Technical Competencies
+            </h3>
+          </div>
+
+          <SkillTagInput
+            label="Primary Skills & Tech Stack *"
+            tags={data.skills || []}
+            onChange={(newSkills) => updateField("skills", newSkills)}
+            suggestions={SUGGESTED_SKILLS}
+            placeholder="Type skill and press Enter (e.g. React, PostgreSQL)..."
+            error={errors.skills}
           />
         </div>
 
-        {/* Social Links */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-800/80">
-          <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1 flex items-center gap-1">
-              <Globe className="w-3.5 h-3.5" />
-              GitHub Profile (Optional)
+        {/* Group Divider */}
+        <div className="border-t border-[#E2DDD3]" />
+
+        {/* Group 3: Professional Summary */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-1.5">
+            <AlignLeft className="w-3.5 h-3.5 text-[#968E85]" />
+            <h3 className="text-[10.5px] font-mono font-semibold uppercase tracking-[0.14em] text-[#968E85]">
+              Executive Overview
+            </h3>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-[11px] font-mono font-medium uppercase tracking-wider text-[#6B635B]">
+              Short Bio / Background (Optional)
             </label>
-            <input
+            <textarea
+              rows={3}
+              value={data.bio || ""}
+              onChange={(e) => updateField("bio", e.target.value)}
+              placeholder="Briefly describe your career background and key architectural accomplishments..."
+              className="w-full rounded-lg bg-white border border-[#D8D2C5] text-[#211A16] placeholder-[#968E85] text-sm p-3.5 transition-all focus:outline-none focus:border-[#211A16] focus:ring-1 focus:ring-[#211A16]/20 resize-none font-sans"
+            />
+          </div>
+        </div>
+
+        {/* Group Divider */}
+        <div className="border-t border-[#E2DDD3]" />
+
+        {/* Group 4: Online Presence */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-1.5">
+            <Globe className="w-3.5 h-3.5 text-[#968E85]" />
+            <h3 className="text-[10.5px] font-mono font-semibold uppercase tracking-[0.14em] text-[#968E85]">
+              Online Profiles
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="GitHub Profile (Optional)"
               type="url"
               value={data.githubUrl || ""}
               onChange={(e) => updateField("githubUrl", e.target.value)}
               placeholder="https://github.com/username"
-              className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-100 placeholder-slate-600 text-xs focus:outline-none focus:border-indigo-500"
+              leftIcon={Globe}
             />
-          </div>
 
-          <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1 flex items-center gap-1">
-              <LinkIcon className="w-3.5 h-3.5" />
-              LinkedIn Profile (Optional)
-            </label>
-            <input
+            <Input
+              label="LinkedIn Profile (Optional)"
               type="url"
               value={data.linkedinUrl || ""}
               onChange={(e) => updateField("linkedinUrl", e.target.value)}
               placeholder="https://linkedin.com/in/username"
-              className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-100 placeholder-slate-600 text-xs focus:outline-none focus:border-indigo-500"
+              leftIcon={LinkIcon}
             />
           </div>
         </div>
       </div>
 
-      {/* Form Action */}
-      <div className="flex justify-end">
-        <button
+      {/* 3. Form Submission Action */}
+      <div className="flex items-center justify-end pt-1">
+        <Button
           type="submit"
-          className="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          variant="primary"
+          size="lg"
+          className="w-full sm:w-auto py-3.5 text-xs sm:text-[13px] tracking-[0.14em] font-semibold"
+          rightIcon={ArrowRight}
         >
-          Continue to Target Role →
-        </button>
+          Continue to Target Role
+        </Button>
       </div>
     </form>
   );
 }
+

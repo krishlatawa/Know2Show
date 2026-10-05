@@ -1,4 +1,4 @@
-import { ai } from "./gemini";
+import { ai, callGeminiWithRetry } from "./gemini";
 import { answerEvaluationOutputSchema, sessionFeedbackSummarySchema } from "./validations/adaptiveChat";
 
 const ADAPTIVE_EVALUATION_SYSTEM_PROMPT = `
@@ -93,16 +93,18 @@ Evaluate the candidate's answer against the expected concepts and rubrics now.
 `;
 
     const modelName = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-    const response = await ai.models.generateContent({
-      model: modelName,
-      contents: promptContext,
-      config: {
-        systemInstruction: ADAPTIVE_EVALUATION_SYSTEM_PROMPT,
-        responseMimeType: "application/json",
-        responseSchema: ADAPTIVE_EVALUATION_JSON_SCHEMA,
-        temperature: 0.3,
-      },
-    });
+    const response = await callGeminiWithRetry(() =>
+      ai.models.generateContent({
+        model: modelName,
+        contents: promptContext,
+        config: {
+          systemInstruction: ADAPTIVE_EVALUATION_SYSTEM_PROMPT,
+          responseMimeType: "application/json",
+          responseSchema: ADAPTIVE_EVALUATION_JSON_SCHEMA,
+          temperature: 0.3,
+        },
+      })
+    );
 
     const parsedJson = JSON.parse(response.text.trim());
     const validated = answerEvaluationOutputSchema.safeParse(parsedJson);
@@ -212,15 +214,17 @@ Compute comprehensive final feedback.
     };
 
     const modelName = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-    const response = await ai.models.generateContent({
-      model: modelName,
-      contents: summaryPrompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: SUMMARY_SCHEMA,
-        temperature: 0.3,
-      },
-    });
+    const response = await callGeminiWithRetry(() =>
+      ai.models.generateContent({
+        model: modelName,
+        contents: summaryPrompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: SUMMARY_SCHEMA,
+          temperature: 0.2,
+        },
+      })
+    );
 
     const parsed = JSON.parse(response.text.trim());
     const validated = sessionFeedbackSummarySchema.safeParse(parsed);

@@ -3,18 +3,37 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import PageContainer from "@/components/layout/PageContainer";
 import StepIndicator from "@/components/onboarding/StepIndicator";
 import CandidateProfileForm from "@/components/onboarding/CandidateProfileForm";
 import TargetRoleForm from "@/components/onboarding/TargetRoleForm";
 import OnboardingSummaryCard from "@/components/onboarding/OnboardingSummaryCard";
 import { candidateProfileSchema, targetRoleSchema } from "@/lib/validations/onboarding";
-import { Sparkles, ShieldAlert } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 const STEPS = [
   { id: 1, title: "Background", description: "Experience & Skills" },
   { id: 2, title: "Target Role", description: "Goal & Focus Topics" },
   { id: 3, title: "Review", description: "Confirm & Launch" },
 ];
+
+const STEP_TITLES = {
+  1: {
+    title: "Candidate Background & Experience",
+    description:
+      "Define your technical profile and experience baseline, or upload your resume to auto-fill with AI.",
+  },
+  2: {
+    title: "Target Role & Interview Strategy",
+    description:
+      "Configure your target role, company type, and focus areas, or analyze a job description for skill-gap targeting.",
+  },
+  3: {
+    title: "Review & Confirm Profile",
+    description:
+      "Double-check your candidate details and interview focus areas before launching your preparation cockpit.",
+  },
+};
 
 export default function OnboardingPage() {
   const { data: session, status } = useSession();
@@ -119,35 +138,21 @@ export default function OnboardingPage() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-300">
-        <div className="w-12 h-12 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4" />
-        <p className="text-sm font-medium">Loading session...</p>
-      </div>
+      <PageContainer size="narrow">
+        <div className="min-h-[60vh] flex flex-col items-center justify-center text-[#6B635B]">
+          <Loader2 className="w-8 h-8 animate-spin text-[#211A16] mb-3" />
+          <p className="text-xs font-mono tracking-widest uppercase text-[#968E85]">Loading session...</p>
+        </div>
+      </PageContainer>
     );
   }
 
+  const currentStepMeta = STEP_TITLES[currentStep] || STEP_TITLES[1];
+
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between relative overflow-hidden py-10 px-4">
-      {/* Background Decorative Glows */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-4xl w-full mx-auto relative z-10 space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-xs font-semibold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            AI Interview Replay Setup
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Target Role & Profile Onboarding
-          </h1>
-          <p className="text-slate-400 text-sm max-w-xl mx-auto">
-            Customize your professional candidate profile and target goals to unlock AI-simulated technical & behavioral interviews.
-          </p>
-        </div>
-
-        {/* Step Progress Indicator */}
+    <PageContainer size="narrow" className="py-8 sm:py-10">
+      <div className="space-y-8 sm:space-y-9">
+        {/* Editorial Step Tracker */}
         <StepIndicator
           steps={STEPS}
           currentStep={currentStep}
@@ -159,8 +164,25 @@ export default function OnboardingPage() {
           }}
         />
 
+        {/* Header & Step Hierarchy */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#EFECE4] border border-[#E2DDD3] rounded-full text-[#6B635B] text-[10.5px] font-mono font-medium uppercase tracking-[0.14em]">
+            <span>STEP 0{currentStep} OF 0{STEPS.length}</span>
+            <span className="text-[#968E85]">•</span>
+            <span className="text-[#211A16] font-semibold">{STEPS[currentStep - 1]?.title}</span>
+          </div>
+
+          <h1 className="text-2xl sm:text-3xl font-medium text-[#211A16] tracking-tight">
+            {currentStepMeta.title}
+          </h1>
+
+          <p className="text-xs sm:text-[13.5px] text-[#6B635B] leading-relaxed max-w-lg mx-auto">
+            {currentStepMeta.description}
+          </p>
+        </div>
+
         {/* Dynamic Form Step Content */}
-        <div className="transition-all duration-300">
+        <div className="transition-all duration-200">
           {currentStep === 1 && (
             <CandidateProfileForm
               data={profileData}
@@ -198,12 +220,13 @@ export default function OnboardingPage() {
             />
           )}
         </div>
-      </div>
 
-      {/* Footer */}
-      <footer className="mt-12 text-center text-xs text-slate-600 relative z-10">
-        AI Interview Replay Platform • Candidate Onboarding Engine
-      </footer>
-    </main>
+        {/* Editorial Footer Note */}
+        <footer className="pt-6 border-t border-[#E2DDD3]/60 text-center text-[10.5px] font-mono tracking-widest text-[#968E85] uppercase">
+          KNOW2SHOW • CANDIDATE PERFORMANCE PROFILE ENGINE
+        </footer>
+      </div>
+    </PageContainer>
   );
 }
+

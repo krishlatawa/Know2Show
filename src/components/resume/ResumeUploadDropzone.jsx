@@ -4,14 +4,12 @@ import React, { useState, useRef } from "react";
 import {
   UploadCloud,
   FileText,
-  FileCode,
-  CheckCircle2,
   AlertCircle,
   Loader2,
   Sparkles,
-  RefreshCw,
   X,
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = false }) {
   const [dragActive, setDragActive] = useState(false);
@@ -20,7 +18,7 @@ export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = fa
   const [rawText, setRawText] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [analysisStep, setAnalysisStep] = useState(""); // "Uploading", "Extracting Skills & Projects", "Formatting Data"
+  const [analysisStep, setAnalysisStep] = useState("");
   const fileInputRef = useRef(null);
 
   const handleDrag = (e) => {
@@ -51,7 +49,7 @@ export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = fa
   const processSelectedFile = (file) => {
     setErrorMessage("");
     if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage("File size exceeds 5MB. Please upload a smaller resume.");
+      setErrorMessage("File size exceeds 5MB limit. Please upload a smaller resume.");
       return;
     }
 
@@ -67,7 +65,6 @@ export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = fa
     }
 
     setSelectedFile(file);
-    // Auto-trigger analysis once file is dropped
     triggerFileAnalysis(file);
   };
 
@@ -80,7 +77,7 @@ export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = fa
       const formData = new FormData();
       formData.append("file", file);
 
-      setTimeout(() => setAnalysisStep("Extracting Skills, Projects & Work History with Gemini AI..."), 800);
+      setTimeout(() => setAnalysisStep("Extracting skills, projects & work history with Gemini..."), 700);
 
       const res = await fetch("/api/resume/analyze", {
         method: "POST",
@@ -114,7 +111,7 @@ export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = fa
 
     setIsAnalyzing(true);
     setErrorMessage("");
-    setAnalysisStep("Analyzing text content with Gemini AI...");
+    setAnalysisStep("Analyzing resume text with Gemini...");
 
     try {
       const res = await fetch("/api/resume/analyze", {
@@ -151,16 +148,20 @@ export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = fa
   };
 
   return (
-    <div className="w-full bg-slate-900/60 border border-slate-800 rounded-2xl p-5 backdrop-blur-md shadow-xl">
-      {/* Header & Mode Switcher */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg text-indigo-400">
-            <Sparkles className="w-4 h-4" />
+    <div className="w-full bg-[#ECE7DD] border border-[#D8D2C5] rounded-lg p-4 sm:p-5 space-y-3.5">
+      {/* Header & Mode Toggle */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="w-6 h-6 rounded bg-[#211A16] text-[#F7F5F0] flex items-center justify-center shrink-0">
+            <Sparkles className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">AI Resume Parser</h3>
-            <p className="text-xs text-slate-400">Auto-extract your skills, projects & experience</p>
+            <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-[#211A16]">
+              AI Resume Accelerator (Optional)
+            </h3>
+            <p className="text-[11.5px] text-[#6B635B]">
+              Upload your resume to auto-fill your headline, skills, and background.
+            </p>
           </div>
         </div>
 
@@ -171,9 +172,9 @@ export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = fa
             handleReset();
           }}
           disabled={isAnalyzing || disabled}
-          className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors font-medium underline underline-offset-4"
+          className="text-[11px] font-mono text-[#6B635B] hover:text-[#211A16] underline underline-offset-4 transition-colors self-start sm:self-auto shrink-0"
         >
-          {textMode ? "Upload PDF instead" : "Paste raw text instead"}
+          {textMode ? "Upload PDF instead" : "or paste resume text"}
         </button>
       </div>
 
@@ -185,10 +186,10 @@ export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = fa
           onDragOver={handleDrag}
           onDrop={handleDrop}
           onClick={() => !isAnalyzing && !disabled && fileInputRef.current?.click()}
-          className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 ${
+          className={`relative border-2 border-dashed rounded-lg p-5 sm:p-6 text-center cursor-pointer transition-all duration-150 ${
             dragActive
-              ? "border-indigo-500 bg-indigo-500/10 scale-[1.01]"
-              : "border-slate-700/80 hover:border-slate-600 bg-slate-950/40 hover:bg-slate-950/70"
+              ? "border-[#211A16] bg-[#FAF9F5] scale-[1.005]"
+              : "border-[#C5BDAF] hover:border-[#211A16]/60 bg-white hover:bg-[#FAF9F5]"
           } ${isAnalyzing ? "pointer-events-none opacity-80" : ""}`}
         >
           <input
@@ -201,23 +202,28 @@ export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = fa
           />
 
           {isAnalyzing ? (
-            <div className="flex flex-col items-center justify-center py-4 space-y-3">
-              <div className="relative">
-                <div className="w-12 h-12 rounded-full border-2 border-indigo-500/30 border-t-indigo-400 animate-spin" />
-                <Sparkles className="w-5 h-5 text-indigo-400 absolute inset-0 m-auto animate-pulse" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-white">{analysisStep || "Analyzing resume..."}</p>
-                <p className="text-xs text-slate-400">Extracting skills, projects, and work history</p>
+            <div className="flex flex-col items-center justify-center py-3 space-y-2.5">
+              <Loader2 className="w-7 h-7 animate-spin text-[#211A16]" />
+              <div className="space-y-0.5">
+                <p className="text-xs sm:text-[13px] font-medium text-[#211A16]">
+                  {analysisStep || "Analyzing resume..."}
+                </p>
+                <p className="text-[10.5px] font-mono text-[#968E85] uppercase tracking-wider">
+                  Extracting skills, projects, and work history
+                </p>
               </div>
             </div>
           ) : selectedFile ? (
-            <div className="flex items-center justify-between bg-slate-800/80 border border-slate-700 rounded-lg p-3">
-              <div className="flex items-center gap-3">
-                <FileText className="w-6 h-6 text-indigo-400" />
+            <div className="flex items-center justify-between bg-white border border-[#D8D2C5] rounded-md p-2.5 sm:p-3">
+              <div className="flex items-center gap-2.5">
+                <FileText className="w-5 h-5 text-[#211A16] shrink-0" />
                 <div className="text-left">
-                  <p className="text-sm font-medium text-white truncate max-w-xs">{selectedFile.name}</p>
-                  <p className="text-xs text-slate-400">{(selectedFile.size / 1024).toFixed(1)} KB</p>
+                  <p className="text-xs sm:text-sm font-medium text-[#211A16] truncate max-w-[200px] sm:max-w-xs">
+                    {selectedFile.name}
+                  </p>
+                  <p className="text-[10.5px] font-mono text-[#6B635B]">
+                    {(selectedFile.size / 1024).toFixed(1)} KB
+                  </p>
                 </div>
               </div>
               <button
@@ -226,69 +232,62 @@ export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = fa
                   e.stopPropagation();
                   handleReset();
                 }}
-                className="p-1 text-slate-400 hover:text-white rounded-md hover:bg-slate-700"
+                className="p-1 text-[#6B635B] hover:text-[#211A16] rounded hover:bg-[#EFECE4] transition-colors"
+                aria-label="Remove selected file"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center space-y-2">
-              <div className="p-3 bg-slate-800/70 rounded-full text-slate-300">
-                <UploadCloud className="w-6 h-6 text-indigo-400" />
+            <div className="flex flex-col items-center justify-center space-y-1.5">
+              <div className="w-9 h-9 rounded-full bg-[#EAE6DF] border border-[#D8D2C5] text-[#211A16] flex items-center justify-center mb-0.5">
+                <UploadCloud className="w-5 h-5 text-[#6B635B]" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-slate-200">
-                  <span className="text-indigo-400">Click to upload</span> or drag and drop
-                </p>
-                <p className="text-xs text-slate-500 mt-1">PDF or TXT resume (up to 5MB)</p>
-              </div>
+              <p className="text-xs sm:text-[13px] font-medium text-[#211A16]">
+                <span className="font-semibold underline underline-offset-2">Click to upload</span> or drag and drop
+              </p>
+              <p className="text-[10.5px] font-mono text-[#968E85] uppercase tracking-wider">
+                PDF or TXT resume • Up to 5MB
+              </p>
             </div>
           )}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <textarea
-            rows={5}
+            rows={4}
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
             disabled={isAnalyzing || disabled}
-            placeholder="Paste your full resume text here (Skills, Experience, Projects, Education)..."
-            className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl p-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+            placeholder="Paste your raw resume text here (Skills, Experience, Projects, Education)..."
+            className="w-full bg-white border border-[#D8D2C5] rounded-lg p-3 text-xs sm:text-sm text-[#211A16] placeholder-[#968E85] focus:outline-none focus:border-[#211A16] focus:ring-1 focus:ring-[#211A16]/20 resize-none font-sans"
           />
           <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleReset}
-              disabled={isAnalyzing || disabled}
-              className="px-3 py-1.5 text-xs text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+              disabled={isAnalyzing || disabled || !rawText}
             >
               Clear
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
               onClick={triggerTextAnalysis}
+              isLoading={isAnalyzing}
               disabled={isAnalyzing || disabled || rawText.trim().length < 30}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg shadow transition-colors"
+              leftIcon={Sparkles}
             >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Extract with AI
-                </>
-              )}
-            </button>
+              Extract with AI
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Error display */}
+      {/* Error Message */}
       {errorMessage && (
-        <div className="mt-3 flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs">
+        <div className="flex items-start gap-2 p-3 bg-[#F9ECEC] border border-[#ECC8C8] rounded-lg text-[#9B2C2C] text-xs font-mono">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{errorMessage}</span>
         </div>
@@ -296,3 +295,4 @@ export default function ResumeUploadDropzone({ onAnalysisComplete, disabled = fa
     </div>
   );
 }
+

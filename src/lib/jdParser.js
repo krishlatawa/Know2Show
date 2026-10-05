@@ -1,4 +1,4 @@
-import { ai } from "./gemini";
+import { ai, callGeminiWithRetry } from "./gemini";
 
 const JD_ANALYSIS_SYSTEM_INSTRUCTION = `
 You are an expert technical recruiter and job specification analyst for high-tier engineering and tech roles.
@@ -108,16 +108,18 @@ export async function analyzeJobDescription({ fileBuffer, mimeType, rawText }) {
 
   const modelName = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
-  const response = await ai.models.generateContent({
-    model: modelName,
-    contents: parts,
-    config: {
-      systemInstruction: JD_ANALYSIS_SYSTEM_INSTRUCTION,
-      responseMimeType: "application/json",
-      responseSchema: JD_JSON_SCHEMA,
-      temperature: 0.1,
-    },
-  });
+  const response = await callGeminiWithRetry(() =>
+    ai.models.generateContent({
+      model: modelName,
+      contents: parts,
+      config: {
+        systemInstruction: JD_ANALYSIS_SYSTEM_INSTRUCTION,
+        responseMimeType: "application/json",
+        responseSchema: JD_JSON_SCHEMA,
+        temperature: 0.1,
+      },
+    })
+  );
 
   const responseText = response.text;
   if (!responseText) {
