@@ -26,6 +26,7 @@ import {
   SkipForward,
 } from "lucide-react";
 import { useMediaPermissions } from "@/hooks/useMediaPermissions";
+import { useMediaRecorder } from "@/hooks/useMediaRecorder";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { PageContainer } from "@/components/layout";
 import { Button, ScoreDisplay, Badge, ProgressBar } from "@/components/ui";
@@ -83,6 +84,14 @@ export default function LiveInterviewRoom({ initialSession }) {
     initialAudio: initialSession?.enableAudio ?? true,
   });
 
+  // Video & Audio recording engine hook
+  const {
+    isRecording: isVideoRecording,
+    mediaUrl: recordedMediaUrl,
+    startRecording,
+    stopRecording,
+  } = useMediaRecorder();
+
   // Speech Recognition & TTS hook
   const {
     isListening,
@@ -114,7 +123,14 @@ export default function LiveInterviewRoom({ initialSession }) {
     }
   }, [stream]);
 
-  // Request hardware stream on mount
+  // Automatically start recording when stream is active and session is ongoing
+  useEffect(() => {
+    if (stream && !isComplete) {
+      startRecording(stream);
+    }
+  }, [stream, isComplete, startRecording]);
+
+  // Request hardware stream on mount & cleanup on unmount
   useEffect(() => {
     requestMedia(
       initialSession?.enableVideo ?? true,
@@ -123,9 +139,10 @@ export default function LiveInterviewRoom({ initialSession }) {
 
     return () => {
       stopMedia();
+      stopRecording();
       cancelSpeech();
     };
-  }, [requestMedia, stopMedia, cancelSpeech, initialSession]);
+  }, [requestMedia, stopMedia, stopRecording, cancelSpeech, initialSession]);
 
   // Timer interval for question
   useEffect(() => {
@@ -205,6 +222,8 @@ export default function LiveInterviewRoom({ initialSession }) {
       if (data.isComplete) {
         setIsComplete(true);
         setFeedbackSummary(data.feedbackSummary);
+        stopRecording();
+        stopMedia();
         speakText(
           "Great job! That concludes all questions for this session. I have compiled your executive interview report."
         );
@@ -263,6 +282,8 @@ export default function LiveInterviewRoom({ initialSession }) {
       if (data.isComplete) {
         setIsComplete(true);
         setFeedbackSummary(data.feedbackSummary);
+        stopRecording();
+        stopMedia();
         speakText(
           "That concludes all questions for this session. I have compiled your executive interview report."
         );
@@ -304,6 +325,7 @@ export default function LiveInterviewRoom({ initialSession }) {
         session={session}
         transcript={transcriptHistory}
         feedbackSummary={feedbackSummary}
+        mediaUrl={recordedMediaUrl}
         onPracticeAgain={() => router.push("/interview/setup")}
       />
     );
@@ -357,8 +379,16 @@ export default function LiveInterviewRoom({ initialSession }) {
             </div>
           </div>
 
-          {/* Right Timer & Exit Action */}
+          {/* Right Timer, REC indicator & Exit Action */}
           <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Active Live Recording Status Badge */}
+            {isVideoRecording && (
+              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#9B2C2C]/10 border border-[#9B2C2C]/20 rounded text-[10px] font-mono text-[#9B2C2C] font-semibold">
+                <span className="w-2 h-2 rounded-full bg-[#9B2C2C] animate-pulse" />
+                <span className="hidden sm:inline">REC</span>
+              </div>
+            )}
+
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#FAF9F5] border border-[#E2DDD3] rounded-md text-xs font-mono text-[#211A16]">
               <Clock className="w-3.5 h-3.5 text-[#6B635B]" />
               <span>{formatTime(questionSeconds)}</span>

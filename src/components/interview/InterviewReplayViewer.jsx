@@ -21,6 +21,7 @@ import {
   FileText,
   Check,
   Zap,
+  Video,
 } from "lucide-react";
 import { PageContainer } from "@/components/layout";
 import {
@@ -35,9 +36,11 @@ export default function InterviewReplayViewer({
   session,
   transcript = [],
   feedbackSummary = null,
+  mediaUrl = null,
   onPracticeAgain,
 }) {
   const [selectedTurnIndex, setSelectedTurnIndex] = useState(0);
+  const activeMediaUrl = mediaUrl || session?.mediaUrl || null;
 
   // Normalize transcript turns
   const turns = useMemo(() => {
@@ -396,6 +399,43 @@ export default function InterviewReplayViewer({
               </ul>
             </div>
           </div>
+
+          {/* Audiovisual Video Replay Dock (Rendered when video recording is available) */}
+          {activeMediaUrl && (
+            <div className="bg-[#FAF9F5] border border-[#E2DDD3] rounded-lg p-5 space-y-3.5">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2DDD3]/60 pb-3">
+                <div className="flex items-center gap-2">
+                  <Video className="w-4 h-4 text-[#211A16]" />
+                  <span className="text-xs font-semibold font-mono uppercase tracking-wider text-[#211A16]">
+                    SESSION AUDIOVISUAL RECORDING REPLAY
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#6B635B] bg-[#EFECE4] px-2 py-0.5 rounded border border-[#E2DDD3]">
+                    CLIENT-SIDE ZERO LATENCY CAPTURE
+                  </span>
+                </div>
+              </div>
+
+              <div className="relative rounded-lg overflow-hidden bg-[#211A16] flex items-center justify-center max-h-[440px]">
+                <video
+                  src={activeMediaUrl}
+                  controls
+                  playsInline
+                  className="w-full max-h-[440px] object-contain rounded-lg"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[11px] font-mono text-[#6B635B]">
+                <span>
+                  Inspect your delivery, vocal cadence, pauses, and non-verbal presence alongside the turn evaluations.
+                </span>
+                <span className="text-[#968E85] shrink-0">
+                  Total Duration: {formatDuration(totalDurationSeconds)}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ======================================================================= */}
